@@ -1,620 +1,836 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CivicAI - Smart City Command Center</title>
-<link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="description"
+        content="CivicAI - Smart City Civic Issue Management"
+    >
+
+    <title>CivicAI - Smart City Command Center</title>
+
+    <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
+
 <div class="container">
-<!-- =========================
- HEADER
-========================= -->
-<header>
- <div class="logo">
- CIVIC<span>AI</span>
- </div>
- <div class="header-title">
- SMART CITY COMMAND CENTER
- </div>
- <button class="theme-btn"
- onclick="toggleTheme()">
-  Theme
- </button>
-</header>
-<!-- =========================
- HERO
-========================= -->
-<section class="hero">
- <div>
- <p class="tag">
- AI-POWERED CIVIC ISSUE MANAGEMENT
- </p>
- <h1>
- Build a <span>Smarter City</span>
- </h1>
- <p>
- Detect, analyze, prioritize and route civic problems
- using an intelligent digital system.
- </p>
- <div class="hero-buttons">
- <button class="primary"
- onclick="showPage('report')">
-  Report an Issue
- </button>
- <button class="secondary"
- onclick="showPage('dashboard')">
-  Dashboard
- </button>
- </div>
- </div>
- <div class="ai-card">
- <div class="ai-circle">
- AI
- </div>
- <h2>
- Intelligent Detection
- </h2>
- <p>
- Image → Category → Severity → Department
- </p>
- <div class="confidence">
- ✓ 96% Confidence
- </div>
- </div>
-</section>
-<!-- =========================
- NAVIGATION
-========================= -->
-<nav>
- <button class="active"
- onclick="showPage('dashboard',this)">
- Dashboard
- </button>
- <button onclick="showPage('report',this)">
- Report Issue
- </button>
- <button onclick="showPage('issues',this)">
- Issue Queue
- </button>
- <button onclick="showPage('about',this)">
- How It Works
- </button>
-</nav>
-<!-- =========================
- DASHBOARD
-========================= -->
-<section id="dashboard"
- class="page active">
- <div class="heading">
- <div>
- <p class="tag">
- LIVE OVERVIEW
- </p>
- <h2>
- City Issue Dashboard
- </h2>
- </div>
- <span class="live">
-  LIVE DEMO
- </span>
- </div>
- <div class="stats">
- <div class="stat">
- <div class="stat-icon">
 
- </div>
- <small>
- Total Issues
- </small>
- <strong id="total">
- 1,247
- </strong>
- <em>
- +12% this week
- </em>
- </div>
- <div class="stat danger">
- <div class="stat-icon">
+    <!-- ================= HEADER ================= -->
 
- </div>
- <small>
- Critical
- </small>
- <strong>
- 83
- </strong>
- <em>
- Needs attention
- </em>
- </div>
- <div class="stat success">
- <div class="stat-icon">
- ✓
- </div>
- <small>
- Resolved
- </small>
- <strong>
- 764
- </strong>
- <em>
- 61.3% resolved
- </em>
- </div>
- <div class="stat">
- <div class="stat-icon">
+    <header>
 
- </div>
- <small>
- Average Resolution
- </small>
- <strong>
- 2.4d
- </strong>
- <em>
- 8% faster
- </em>
- </div>
- </div>
- <div class="grid">
- <!-- MAP -->
- <div class="panel">
- <div class="panel-title">
- <h3>
-  City Issue Map
- </h3>
- <button onclick="locate()">
- ◎ Locate
- </button>
- </div>
- <div class="map">
- <div class="road r1"></div>
- <div class="road r2"></div>
- <div class="road r3"></div>
- <button
- class="marker critical m1"
- onclick="issueDetails(
- 'Pothole - University Road',
- 94,
- 17,
- 'Road Maintenance')">
- 
- </button>
- <button
- class="marker critical m2"
- onclick="issueDetails(
- 'Broken Streetlight - Ring Road',
- 88,
- 9,
- 'Electrical Department')">
- 
- </button>
- <button
- class="marker medium m3"
- onclick="issueDetails(
- 'Garbage - Market Area',
- 64,
- 8,
- 'Waste Management')">
- 
- </button>
- <button
- class="marker low m4"
- onclick="issueDetails(
- 'Broken Park Bench',
- 23,
- 2,
- 'Parks Department')">
- 
- </button>
- <span class="map-label">
- SMART CITY ZONE
- </span>
- </div>
- <div class="legend">
-  Critical
- &nbsp;&nbsp;&nbsp;
-  Medium
- &nbsp;&nbsp;&nbsp;
-  Low
- </div>
- </div>
- <!-- PRIORITY -->
- <div class="panel">
- <div class="panel-title">
- <h3>
-  Priority Queue
- </h3>
- <button onclick="sortIssues()">
- Sort
- </button>
- </div>
- <div class="issue high"
- onclick="issueDetails(
- 'Pothole - University Road',
- 94,
- 17,
- 'Road Maintenance')">
- <div class="issue-icon">
+        <div class="logo">
+            CIVIC<span>AI</span>
+        </div>
 
- </div>
- <div>
- <b>
- Pothole - University Road
- </b>
- <p>
- Severity
- <strong>94/100</strong>
- · 17 reports
- </p>
- </div>
- <strong>
- P1
- </strong>
- </div>
- <div class="issue med"
- onclick="issueDetails(
- 'Garbage - Market Area',
- 64,
- 8,
- 'Waste Management')">
- <div class="issue-icon">
+        <div class="header-title">
+            SMART CITY COMMAND CENTER
+        </div>
 
- </div>
- <div>
- <b>
- Garbage Accumulation
- </b>
- <p>
- Severity
- <strong>64/100</strong>
- · 8 reports
- </p>
- </div>
- <strong>
- P2
- </strong>
- </div>
- <div class="issue low"
- onclick="issueDetails(
- 'Broken Park Bench',
- 23,
- 2,
- 'Parks Department')">
- <div class="issue-icon">
+        <button
+            class="theme-btn"
+            onclick="toggleTheme()"
+        >
+            ☀ Theme
+        </button>
 
- </div>
- <div>
- <b>
- Broken Park Bench
- </b>
- <p>
- Severity
- <strong>23/100</strong>
- · 2 reports
- </p>
- </div>
- <strong>
- P3
- </strong>
- </div>
- </div>
- </div>
-</section>
-<!-- =========================
- REPORT ISSUE
-========================= -->
-<section id="report"
- class="page">
- <div class="heading">
- <div>
- <p class="tag">
- CITIZEN PORTAL
- </p>
- <h2>
- Report a Civic Issue
- </h2>
- </div>
- </div>
- <div class="report-grid">
- <div class="panel">
- <label>
- Issue Photo
- </label>
- <label class="upload"
- for="photo">
- <span>
+    </header>
 
- </span>
- <b>
- Upload Issue Image
- </b>
- <small>
- JPG / PNG supported
- </small>
- </label>
- <input
- type="file"
- id="photo"
- accept="image/*"
- onchange="previewImage(event)"
- hidden
- >
- <img id="preview">
- </div>
- <form class="panel"
- onsubmit="analyze(event)">
- <label>
- Issue Description
- </label>
- <textarea
- id="description"
- placeholder="Example: Huge pothole near university gate..."
- required>
- </textarea>
- <label>
- Location
- </label>
- <input
- id="location"
- placeholder="University Road, Rajkot"
- required
- >
- <button
- class="primary full">
-  Analyze with CivicAI
- </button>
- <div
- id="result"
- class="result hidden">
- </div>
- </form>
- </div>
-</section>
-<!-- =========================
- ISSUE QUEUE
-========================= -->
-<section id="issues"
- class="page">
- <div class="heading">
- <div>
- <p class="tag">
- MUNICIPAL WORKFLOW
- </p>
- <h2>
- Issue Queue
- </h2>
- </div>
- <button
- class="primary"
- onclick="showPage('report')">
- + New Report
- </button>
- </div>
- <div class="table panel">
- <div class="row head">
- <b>Issue</b>
- <b>Severity</b>
- <b>Department</b>
- <b>Status</b>
- <b>Action</b>
- </div>
- <div class="row">
- <span>
-  Pothole - University Road
- </span>
- <b class="red">
- 94/100
- </b>
- <span>
- Road Maintenance
- </span>
- <span class="badge pending">
- Pending
- </span>
- <button
- onclick="issueDetails(
- 'Pothole - University Road',
- 94,
- 17,
- 'Road Maintenance')">
- View
- </button>
- </div>
- <div class="row">
- <span>
-  Garbage - Market Area
- </span>
- <b class="orange">
- 64/100
- </b>
- <span>
- Waste Management
- </span>
- <span class="badge progress">
- In Progress
- </span>
- <button
- onclick="issueDetails(
- 'Garbage - Market Area',
- 64,
- 8,
- 'Waste Management')">
- View
- </button>
- </div>
- <div class="row">
- <span>
-  Streetlight - Ring Road
- </span>
- <b class="red">
- 88/100
- </b>
- <span>
- Electrical Department
- </span>
- <span class="badge pending">
- Pending
- </span>
- <button
- onclick="issueDetails(
- 'Streetlight - Ring Road',
- 88,
- 9,
- 'Electrical Department')">
- View
- </button>
- </div>
- </div>
-</section>
-<!-- =========================
- HOW IT WORKS
-========================= -->
-<section id="about"
- class="page">
- <div class="heading">
- <div>
- <p class="tag">
- SYSTEM ARCHITECTURE
- </p>
- <h2>
- How CivicAI Works
- </h2>
- </div>
- </div>
- <div class="workflow">
- <div>
- <span></span>
- <b>
- Citizen
- </b>
- <small>
- Photo + Description + Location
- </small>
- </div>
- <i>→</i>
- <div>
- <span></span>
- <b>
- AI Detection
- </b>
- <small>
- Category + Confidence
- </small>
- </div>
- <i>→</i>
- <div>
- <span></span>
- <b>
- Severity
- </b>
- <small>
- Risk + Reports
- </small>
- </div>
- <i>→</i>
- <div>
- <span></span>
- <b>
- Department
- </b>
- <small>
- Automatic Assignment
- </small>
- </div>
- <i>→</i>
- <div>
- <span></span>
- <b>
- Resolution
- </b>
- <small>
- Track & Close
- </small>
- </div>
- </div>
- <div class="features">
- <div class="feature">
- <span></span>
- <h3>
- Image Classification
- </h3>
- <p>
- Detect potholes, garbage and broken streetlights.
- </p>
- </div>
- <div class="feature">
- <span></span>
- <h3>
- Severity Prediction
- </h3>
- <p>
- Calculate issue severity from 0 to 100.
- </p>
- </div>
- <div class="feature">
- <span> </span>
- <h3>
- Duplicate Detection
- </h3>
- <p>
- Identify multiple reports of the same issue.
- </p>
- </div>
- <div class="feature">
- <span></span>
- <h3>
- Smart Routing
- </h3>
- <p>
- Send issues to the correct department.
- </p>
- </div>
- </div>
-</section>
+
+    <!-- ================= HERO ================= -->
+
+    <section class="hero">
+
+        <div>
+
+            <p class="tag">
+                AI-POWERED CIVIC ISSUE MANAGEMENT
+            </p>
+
+            <h1>
+                Build a <span>Smarter City</span>
+            </h1>
+
+            <p>
+                Report, analyze, prioritize and resolve
+                civic problems using an intelligent
+                digital system.
+            </p>
+
+            <div class="hero-buttons">
+
+                <button
+                    class="primary"
+                    onclick="showPage('report')"
+                >
+                    Report an Issue
+                </button>
+
+                <button
+                    class="secondary"
+                    onclick="showPage('dashboard')"
+                >
+                    Dashboard
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <div class="ai-card">
+
+            <div class="ai-circle">
+                AI
+            </div>
+
+            <h2>
+                Intelligent Detection
+            </h2>
+
+            <p>
+                Image → Category → Severity → Department
+            </p>
+
+            <div class="confidence">
+                ✓ AI Ready
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ================= NAVIGATION ================= -->
+
+    <nav>
+
+        <button
+            class="active"
+            onclick="showPage('dashboard', this)"
+        >
+            Dashboard
+        </button>
+
+        <button
+            onclick="showPage('report', this)"
+        >
+            Report Issue
+        </button>
+
+        <button
+            onclick="showPage('issues', this)"
+        >
+            Issue Queue
+        </button>
+
+        <button
+            onclick="showPage('about', this)"
+        >
+            How It Works
+        </button>
+
+    </nav>
+
+
+    <!-- ================= DASHBOARD ================= -->
+
+    <section
+        id="dashboard"
+        class="page active"
+    >
+
+        <div class="heading">
+
+            <div>
+
+                <p class="tag">
+                    LIVE OVERVIEW
+                </p>
+
+                <h2>
+                    City Issue Dashboard
+                </h2>
+
+            </div>
+
+            <span class="live">
+                ● LIVE
+            </span>
+
+        </div>
+
+
+        <div class="stats">
+
+            <div class="stat">
+
+                <div class="stat-icon">
+                    📋
+                </div>
+
+                <small>
+                    Total Issues
+                </small>
+
+                <strong id="total">
+                    0
+                </strong>
+
+                <em>
+                    Live from backend
+                </em>
+
+            </div>
+
+
+            <div class="stat danger">
+
+                <div class="stat-icon">
+                    ⚠
+                </div>
+
+                <small>
+                    Critical
+                </small>
+
+                <strong id="critical">
+                    0
+                </strong>
+
+                <em>
+                    Needs attention
+                </em>
+
+            </div>
+
+
+            <div class="stat success">
+
+                <div class="stat-icon">
+                    ✓
+                </div>
+
+                <small>
+                    Resolved
+                </small>
+
+                <strong id="resolved">
+                    0
+                </strong>
+
+                <em>
+                    Successfully resolved
+                </em>
+
+            </div>
+
+
+            <div class="stat">
+
+                <div class="stat-icon">
+                    ⏱
+                </div>
+
+                <small>
+                    Average Resolution
+                </small>
+
+                <strong id="average">
+                    —
+                </strong>
+
+                <em>
+                    From issue data
+                </em>
+
+            </div>
+
+        </div>
+
+
+        <div class="grid">
+
+            <!-- MAP -->
+
+            <div class="panel">
+
+                <div class="panel-title">
+
+                    <h3>
+                        City Issue Map
+                    </h3>
+
+                    <button onclick="locate()">
+                        ◎ Locate
+                    </button>
+
+                </div>
+
+                <div class="map">
+
+                    <div class="road r1"></div>
+                    <div class="road r2"></div>
+                    <div class="road r3"></div>
+
+                    <div class="marker critical m1"></div>
+                    <div class="marker medium m2"></div>
+                    <div class="marker low m3"></div>
+
+                    <span class="map-label">
+                        SMART CITY ZONE
+                    </span>
+
+                </div>
+
+                <div class="legend">
+                    <span class="legend-item critical-text">
+                        ● Critical
+                    </span>
+
+                    <span class="legend-item medium-text">
+                        ● Medium
+                    </span>
+
+                    <span class="legend-item low-text">
+                        ● Low
+                    </span>
+                </div>
+
+            </div>
+
+
+            <!-- PRIORITY -->
+
+            <div class="panel">
+
+                <div class="panel-title">
+
+                    <h3>
+                        Priority Queue
+                    </h3>
+
+                    <button onclick="loadIssues()">
+                        ↻ Refresh
+                    </button>
+
+                </div>
+
+                <div id="priorityQueue">
+
+                    <div class="empty">
+                        Loading issues...
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ================= REPORT ================= -->
+
+    <section
+        id="report"
+        class="page"
+    >
+
+        <div class="heading">
+
+            <div>
+
+                <p class="tag">
+                    CITIZEN PORTAL
+                </p>
+
+                <h2>
+                    Report a Civic Issue
+                </h2>
+
+                <p class="heading-description">
+                    Submit a civic problem for AI analysis
+                    and department routing.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="report-grid">
+
+
+            <!-- IMAGE -->
+
+            <div class="panel">
+
+                <label>
+                    Issue Photo
+                </label>
+
+                <label
+                    class="upload"
+                    for="photo"
+                >
+
+                    <span>
+                        📷
+                    </span>
+
+                    <b>
+                        Upload Issue Image
+                    </b>
+
+                    <small>
+                        JPG / PNG supported
+                    </small>
+
+                </label>
+
+                <input
+                    type="file"
+                    id="photo"
+                    accept="image/*"
+                    hidden
+                >
+
+                <img
+                    id="preview"
+                    alt="Issue preview"
+                >
+
+            </div>
+
+
+            <!-- FORM -->
+
+            <form
+                class="panel"
+                id="reportForm"
+            >
+
+                <label for="description">
+                    Issue Description
+                </label>
+
+                <textarea
+                    id="description"
+                    placeholder="Example: Huge pothole near university gate..."
+                    required
+                ></textarea>
+
+
+                <label for="location">
+                    Location
+                </label>
+
+                <input
+                    type="text"
+                    id="location"
+                    placeholder="University Road, Rajkot"
+                    required
+                >
+
+
+                <label for="category">
+                    Issue Category
+                </label>
+
+                <select
+                    id="category"
+                    required
+                >
+
+                    <option value="">
+                        Select category
+                    </option>
+
+                    <option value="road">
+                        Road / Pothole
+                    </option>
+
+                    <option value="waste">
+                        Garbage / Waste
+                    </option>
+
+                    <option value="streetlight">
+                        Streetlight
+                    </option>
+
+                    <option value="water">
+                        Water / Leakage
+                    </option>
+
+                    <option value="drainage">
+                        Drainage
+                    </option>
+
+                    <option value="other">
+                        Other
+                    </option>
+
+                </select>
+
+
+                <button
+                    type="submit"
+                    class="primary full"
+                    id="submitBtn"
+                >
+                    Submit Report
+                </button>
+
+
+                <div
+                    id="result"
+                    class="result hidden"
+                ></div>
+
+            </form>
+
+        </div>
+
+    </section>
+
+
+    <!-- ================= ISSUE QUEUE ================= -->
+
+    <section
+        id="issues"
+        class="page"
+    >
+
+        <div class="heading">
+
+            <div>
+
+                <p class="tag">
+                    MUNICIPAL WORKFLOW
+                </p>
+
+                <h2>
+                    Issue Queue
+                </h2>
+
+            </div>
+
+            <button
+                class="primary"
+                onclick="showPage('report')"
+            >
+                + New Report
+            </button>
+
+        </div>
+
+
+        <div class="table panel">
+
+            <div class="row head">
+
+                <b>
+                    Issue
+                </b>
+
+                <b>
+                    Severity
+                </b>
+
+                <b>
+                    Department
+                </b>
+
+                <b>
+                    Status
+                </b>
+
+                <b>
+                    Action
+                </b>
+
+            </div>
+
+
+            <div id="issueTable">
+
+                <div class="empty">
+                    Loading issues...
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ================= HOW IT WORKS ================= -->
+
+    <section
+        id="about"
+        class="page"
+    >
+
+        <div class="heading">
+
+            <div>
+
+                <p class="tag">
+                    SYSTEM ARCHITECTURE
+                </p>
+
+                <h2>
+                    How CivicAI Works
+                </h2>
+
+            </div>
+
+        </div>
+
+
+        <div class="workflow">
+
+            <div>
+
+                <span>
+                    👤
+                </span>
+
+                <b>
+                    Citizen
+                </b>
+
+                <small>
+                    Photo + Description + Location
+                </small>
+
+            </div>
+
+            <i>→</i>
+
+            <div>
+
+                <span>
+                    🤖
+                </span>
+
+                <b>
+                    AI Detection
+                </b>
+
+                <small>
+                    Category + Confidence
+                </small>
+
+            </div>
+
+            <i>→</i>
+
+            <div>
+
+                <span>
+                    📊
+                </span>
+
+                <b>
+                    Severity
+                </b>
+
+                <small>
+                    Risk Analysis
+                </small>
+
+            </div>
+
+            <i>→</i>
+
+            <div>
+
+                <span>
+                    🏢
+                </span>
+
+                <b>
+                    Department
+                </b>
+
+                <small>
+                    Automatic Assignment
+                </small>
+
+            </div>
+
+            <i>→</i>
+
+            <div>
+
+                <span>
+                    ✓
+                </span>
+
+                <b>
+                    Resolution
+                </b>
+
+                <small>
+                    Track & Close
+                </small>
+
+            </div>
+
+        </div>
+
+
+        <div class="features">
+
+            <div class="feature">
+
+                <span>
+                    📷
+                </span>
+
+                <h3>
+                    Image Classification
+                </h3>
+
+                <p>
+                    Detect civic infrastructure problems
+                    from submitted images.
+                </p>
+
+            </div>
+
+
+            <div class="feature">
+
+                <span>
+                    📈
+                </span>
+
+                <h3>
+                    Severity Prediction
+                </h3>
+
+                <p>
+                    Calculate issue severity from
+                    multiple signals.
+                </p>
+
+            </div>
+
+
+            <div class="feature">
+
+                <span>
+                    🔎
+                </span>
+
+                <h3>
+                    Duplicate Detection
+                </h3>
+
+                <p>
+                    Identify multiple reports
+                    referring to the same issue.
+                </p>
+
+            </div>
+
+
+            <div class="feature">
+
+                <span>
+                    🎯
+                </span>
+
+                <h3>
+                    Smart Routing
+                </h3>
+
+                <p>
+                    Automatically route issues
+                    to the correct department.
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
 </div>
-<!-- =========================
- MODAL
-========================= -->
-<div id="modal"
- class="modal hidden">
- <div class="modal-box">
- <button
- class="close"
- onclick="closeModal()">
- ×
- </button>
- <p class="tag">
- ISSUE DETAILS
- </p>
- <h2 id="modalTitle">
- </h2>
- <div id="modalScore"
- class="score">
- </div>
- <p>
- Reports:
- <b id="modalReports"></b>
- </p>
- <p>
- Department:
- <b id="modalDepartment"></b>
- </p>
- <p>
- Status:
- <span class="badge pending">
- Pending
- </span>
- </p>
- <button
- class="primary full"
- onclick="resolveIssue()">
- ✓ Mark as Resolved
- </button>
- </div>
+
+
+<!-- ================= MODAL ================= -->
+
+<div
+    id="modal"
+    class="modal hidden"
+>
+
+    <div class="modal-box">
+
+        <button
+            class="close"
+            onclick="closeModal()"
+        >
+            ×
+        </button>
+
+        <p class="tag">
+            ISSUE DETAILS
+        </p>
+
+        <h2 id="modalTitle">
+            Issue
+        </h2>
+
+        <div
+            id="modalScore"
+            class="score"
+        >
+            —
+        </div>
+
+        <p>
+            Reports:
+            <b id="modalReports">—</b>
+        </p>
+
+        <p>
+            Department:
+            <b id="modalDepartment">—</b>
+        </p>
+
+        <p>
+            Status:
+            <span
+                id="modalStatus"
+                class="badge pending"
+            >
+                Pending
+            </span>
+        </p>
+
+        <button
+            class="primary full"
+            onclick="resolveIssue()"
+        >
+            ✓ Mark as Resolved
+        </button>
+
+    </div>
+
 </div>
+
+
 <script src="script.js"></script>
+
 </body>
 </html>
