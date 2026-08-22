@@ -12,15 +12,15 @@ def calculate_severity(data):
     category = data['category']
     description = data["description"].lower()
 
-    if category == "road":
+    if category == "Road Damage":
         severity = 70
-    elif category == "drainage":
+    elif category == "Drainage Problem":
         severity = 65
-    elif category == "water":
+    elif category == "Water Leakage":
         severity = 60
-    elif category == "waste":
+    elif category == "Garbage":
         severity = 50
-    elif category == "streetlight":
+    elif category == "Broken Street Light":
         severity = 40
     else :
         severity = 30
@@ -36,18 +36,20 @@ def calculate_severity(data):
 def assign_department(data):
     category = data['category']
 
-    if category == "road":
-            department = "Road & Infrastructure"
-    elif category == "drainage":
+    if category == "Road Damage":
+            department = "Public Works"
+    elif category == "Drainage Authority":
             department = "Drainage Department"
-    elif category == "water":
-            department = "Water Supply"
-    elif category == "waste":
-            department = "Waste Management"
-    elif category == "streetlight":
-            department = "Electrical Department"
+    elif category == "Water Leakage":
+            department = "Water Board"
+    elif category == "Garbage":
+            department = "Sanitation Dept"
+    elif category == "Broken Street Light":
+            department = "Electrical Dept"
     else :
-            department = "Municipal Services"
+            department = "General Services"
+
+    return department
 
 @app.route("/")
 def home():
