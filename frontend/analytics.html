@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Analytics — Civic AI Government Console</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/animations.css">
+<link rel="stylesheet" href="css/responsive.css">
+<link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+<canvas id="bg-particles"></canvas>
+<div class="admin-layout">
+  <aside class="admin-sidebar" id="adminSidebar" data-current="analytics.html"></aside>
+  <main class="admin-content" id="analyticsPage">
+    <div class="admin-topbar">
+      <div>
+        <button class="hamburger" id="sidebarToggle"><span></span><span></span><span></span></button>
+        <h1>Analytics</h1>
+        <p>City-wide infrastructure trends, generated from live report data.</p>
+      </div>
+    </div>
+
+    <div class="grid-2" style="margin-bottom:24px;">
+      <div class="glass chart-card">
+        <h3>Issues by Category</h3>
+        <div class="bar-chart" id="chartCategory"></div>
+      </div>
+      <div class="glass chart-card">
+        <h3>Issues by Severity</h3>
+        <div class="bar-chart" id="chartSeverity"></div>
+      </div>
+    </div>
+    <div class="grid-2" style="margin-bottom:24px;">
+      <div class="glass chart-card">
+        <h3>Issues by Status</h3>
+        <div class="bar-chart" id="chartStatus"></div>
+      </div>
+      <div class="glass chart-card">
+        <h3>Issues by Area</h3>
+        <div class="bar-chart" id="chartArea"></div>
+      </div>
+    </div>
+    <div class="glass chart-card">
+      <h3>Reports Over Time</h3>
+      <div id="chartTimeline"></div>
+    </div>
+  </main>
+</div>
+
+<script src="js/main.js"></script>
+<script src="js/reports.js"></script>
+<script src="js/admin.js"></script>
+<script src="js/analytics.js"></script>
+</body>
+</html>

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>All Reports — Civic AI Government Console</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/animations.css">
+<link rel="stylesheet" href="css/responsive.css">
+<link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+<canvas id="bg-particles"></canvas>
+<div class="admin-layout">
+  <aside class="admin-sidebar" id="adminSidebar" data-current="admin-reports.html"></aside>
+  <main class="admin-content">
+    <div class="admin-topbar">
+      <div>
+        <button class="hamburger" id="sidebarToggle"><span></span><span></span><span></span></button>
+        <h1>All Reports</h1>
+        <p>Search, filter, and manage every report in the system.</p>
+      </div>
+    </div>
+
+    <div class="filters-bar">
+      <input type="text" id="adminSearch" placeholder="Search by issue or ID...">
+      <select id="adminCategoryFilter">
+        <option value="">All Categories</option>
+        <option>Water Leakage</option><option>Garbage</option><option>Broken Street Light</option>
+        <option>Road Damage</option><option>Drainage Problem</option><option>Other</option>
+      </select>
+      <select id="adminStatusFilter">
+        <option value="">All Statuses</option>
+        <option>Submitted</option><option>Under Review</option><option>Assigned</option>
+        <option>In Progress</option><option>Resolved</option><option>Rejected</option>
+      </select>
+      <select id="adminPriorityFilter">
+        <option value="">All Priorities</option>
+        <option>High</option><option>Medium</option><option>Low</option>
+      </select>
+    </div>
+
+    <div class="table-wrap">
+      <table class="data-table responsive-table">
+        <thead>
+          <tr><th>ID</th><th>Issue</th><th>Category</th><th>Severity</th><th>Priority</th><th>Status</th><th>Department</th><th>Action</th></tr>
+        </thead>
+        <tbody id="adminReportsBody"></tbody>
+      </table>
+    </div>
+  </main>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal-overlay" id="adminEditModal">
+  <div class="glass modal-box">
+    <span class="close-x" onclick="closeAdminEdit()">✕</span>
+    <div class="eyebrow" id="editReportId">CIV-00000</div>
+    <h3 id="editIssue" style="font-size:19px;"></h3>
+    <p id="editDesc" style="font-size:13.5px;"></p>
+
+    <div class="severity-meter">
+      <div class="row"><span>Severity</span><span id="editSeverityLabel">—</span></div>
+      <div class="severity-bar"><div class="severity-fill" id="editSeverityFill"></div></div>
+      <div style="font-size:12.5px; margin-top:8px; color:var(--gray-mist-dim);">AI Confidence: <span class="mono" id="editConfidence" style="color:var(--cyan-signal);">—</span></div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="field">
+      <label for="editStatusSelect">Update Status</label>
+      <select id="editStatusSelect">
+        <option>Submitted</option><option>Under Review</option><option>Assigned</option>
+        <option>In Progress</option><option>Resolved</option><option>Rejected</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="editPrioritySelect">Update Priority</label>
+      <select id="editPrioritySelect"><option>High</option><option>Medium</option><option>Low</option></select>
+    </div>
+    <div class="field">
+      <label for="editDeptSelect">Assign Department</label>
+      <select id="editDeptSelect">
+        <option>Water Board</option><option>Sanitation Dept.</option><option>Electrical Dept.</option>
+        <option>Public Works</option><option>Drainage Authority</option><option>General Services</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="editResponse">Government Response</label>
+      <textarea id="editResponse" placeholder="Add a note visible to the citizen..."></textarea>
+    </div>
+
+    <button class="btn btn-primary btn-block" onclick="saveAdminEdit()">Save Changes</button>
+  </div>
+</div>
+
+<script src="js/main.js"></script>
+<script src="js/reports.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>

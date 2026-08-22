@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Reports — Civic AI</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/animations.css">
+<link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+<canvas id="bg-particles"></canvas>
+<div id="navbar" data-mode="citizen" data-current="reports.html"></div>
+
+<section class="section" style="padding-top:60px;">
+  <div class="container">
+    <div class="section-head reveal in">
+      <div class="eyebrow">Your Activity</div>
+      <h2>My Reports</h2>
+      <p>Track every issue you've reported and follow its journey to resolution.</p>
+    </div>
+
+    <div class="filters-bar reveal in">
+      <input type="text" id="searchInput" placeholder="Search by issue or ID...">
+      <select id="categoryFilter">
+        <option value="">All Categories</option>
+        <option>Water Leakage</option><option>Garbage</option><option>Broken Street Light</option>
+        <option>Road Damage</option><option>Drainage Problem</option><option>Other</option>
+      </select>
+      <select id="statusFilter">
+        <option value="">All Statuses</option>
+        <option>Submitted</option><option>Under Review</option><option>Assigned</option>
+        <option>In Progress</option><option>Resolved</option><option>Rejected</option>
+      </select>
+      <select id="priorityFilter">
+        <option value="">All Priorities</option>
+        <option>High</option><option>Medium</option><option>Low</option>
+      </select>
+    </div>
+
+    <div id="reportsList"></div>
+
+    <div id="emptyState" class="glass card text-center" style="display:none; padding:60px 30px;">
+      <div style="font-size:36px;">📭</div>
+      <h3>No reports yet.</h3>
+      <p style="max-width:400px; margin:0 auto 16px;">See something that needs attention? Report it and help improve your city.</p>
+      <a href="report.html" class="btn btn-primary">Report an Issue →</a>
+    </div>
+  </div>
+</section>
+
+<div id="footer"></div>
+<script src="js/main.js"></script>
+<script src="js/reports.js"></script>
+</body>
+</html>

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Command Center — Civic AI Government Console</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/animations.css">
+<link rel="stylesheet" href="css/responsive.css">
+<link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+<canvas id="bg-particles"></canvas>
+<div class="admin-layout">
+  <aside class="admin-sidebar" id="adminSidebar" data-current="admin-dashboard.html"></aside>
+  <main class="admin-content">
+    <div class="admin-topbar">
+      <div>
+        <button class="hamburger" id="sidebarToggle"><span></span><span></span><span></span></button>
+        <h1>Civic AI Command Center</h1>
+        <p>Real-time overview of city infrastructure reports.</p>
+      </div>
+      <a href="priority.html" class="btn btn-primary btn-sm">View Priority Queue →</a>
+    </div>
+
+    <div class="grid-3" id="dashStats" style="grid-template-columns:repeat(3,1fr); margin-bottom:40px;"></div>
+
+    <div class="glass card reveal in">
+      <h3 style="font-size:16px; margin-bottom:16px;">Recent Reports</h3>
+      <div id="dashRecent"></div>
+    </div>
+  </main>
+</div>
+
+<script src="js/main.js"></script>
+<script src="js/reports.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>

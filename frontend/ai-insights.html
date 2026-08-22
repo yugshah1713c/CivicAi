@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Insights — Civic AI Government Console</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/animations.css">
+<link rel="stylesheet" href="css/responsive.css">
+<link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+<canvas id="bg-particles"></canvas>
+<div class="admin-layout">
+  <aside class="admin-sidebar" id="adminSidebar" data-current="ai-insights.html"></aside>
+  <main class="admin-content">
+    <div class="admin-topbar">
+      <div>
+        <button class="hamburger" id="sidebarToggle"><span></span><span></span><span></span></button>
+        <h1>AI Infrastructure Insights</h1>
+        <p>Pattern signals surfaced automatically from incoming reports. Demo insights.</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="glass insight-card reveal in">
+        <div class="insight-icon">📈</div>
+        <div><h3 style="font-size:15.5px;">Garbage complaints rising</h3><p>Garbage complaints increased by 18% this week compared to last week's volume.</p></div>
+      </div>
+      <div class="glass insight-card reveal in">
+        <div class="insight-icon">📍</div>
+        <div><h3 style="font-size:15.5px;">Ward 7 hotspot</h3><p>Ward 7 has the highest concentration of infrastructure issues across all categories.</p></div>
+      </div>
+      <div class="glass insight-card reveal in">
+        <div class="insight-icon">🚨</div>
+        <div><h3 style="font-size:15.5px;">Urgent attention needed</h3><p>23 high-severity issues currently require immediate attention from field teams.</p></div>
+      </div>
+      <div class="glass insight-card reveal in">
+        <div class="insight-icon">💡</div>
+        <div><h3 style="font-size:15.5px;">Street-light cluster</h3><p>Street-light complaints are concentrated in the northern zone of the city.</p></div>
+      </div>
+    </div>
+
+    <div class="glass card reveal in" style="margin-top:24px;">
+      <div class="eyebrow">Model Note</div>
+      <p>These insights are generated from mock frontend data for demonstration. In production, they would be produced by aggregating live YOLO detections and report metadata over time.</p>
+    </div>
+  </main>
+</div>
+
+<script src="js/main.js"></script>
+<script src="js/reports.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>

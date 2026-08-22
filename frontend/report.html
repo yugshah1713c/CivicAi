@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Report an Issue — Civic AI</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/animations.css">
+<link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+<canvas id="bg-particles"></canvas>
+<div id="navbar" data-mode="citizen" data-current="report.html"></div>
+
+<section class="section" style="padding-top:60px;">
+  <div class="container" style="max-width:820px;">
+    <div class="section-head reveal in">
+      <div class="eyebrow">New Report</div>
+      <h2>Report a Civic Issue</h2>
+      <p>Give us the details — our AI will help classify and prioritize it for the right department.</p>
+    </div>
+
+    <form id="reportForm">
+      <div class="glass card reveal in" style="margin-bottom:24px;">
+        <h3 style="font-size:16px;">Issue Details</h3>
+        <div class="field">
+          <label for="issueName">Issue Name</label>
+          <input type="text" id="issueName" placeholder="e.g. Overflowing garbage bin on 5th Street" required>
+        </div>
+        <div class="field">
+          <label for="description">Description</label>
+          <textarea id="description" placeholder="Describe what you saw, when, and how it's affecting the area..." required></textarea>
+        </div>
+      </div>
+
+      <div class="glass card reveal in" style="margin-bottom:24px;">
+        <h3 style="font-size:16px;">Category</h3>
+        <div class="category-grid">
+          <div class="category-card" data-category="Water Leakage"><span class="cat-icon">💧</span><div class="cat-label">Water Leakage</div></div>
+          <div class="category-card" data-category="Garbage"><span class="cat-icon">🗑️</span><div class="cat-label">Garbage</div></div>
+          <div class="category-card" data-category="Broken Street Light"><span class="cat-icon">💡</span><div class="cat-label">Broken Street Light</div></div>
+          <div class="category-card" data-category="Road Damage"><span class="cat-icon">🛣️</span><div class="cat-label">Road Damage</div></div>
+          <div class="category-card" data-category="Drainage Problem"><span class="cat-icon">🚰</span><div class="cat-label">Drainage Problem</div></div>
+          <div class="category-card" data-category="Other"><span class="cat-icon">📌</span><div class="cat-label">Other</div></div>
+        </div>
+      </div>
+
+      <div class="glass card reveal in" style="margin-bottom:24px;">
+        <h3 style="font-size:16px;">Location</h3>
+        <div class="grid-2">
+          <div class="field"><label for="address">Address</label><input type="text" id="address" placeholder="Street address" required></div>
+          <div class="field"><label for="area">Area</label><input type="text" id="area" placeholder="Ward / neighborhood" required></div>
+        </div>
+        <div class="field"><label for="city">City</label><input type="text" id="city" placeholder="City" required></div>
+        <div class="map-coming-soon">
+          <div style="font-size:26px;">🗺️</div>
+          <div>Map integration coming soon</div>
+        </div>
+      </div>
+
+      <div class="glass card reveal in" style="margin-bottom:24px;">
+        <h3 style="font-size:16px;">Photo Evidence</h3>
+        <div class="dropzone" id="dropzone">
+          <div class="dropzone-empty">
+            <div class="icon">📷</div>
+            <div><b>Drag & drop</b> a photo here, or click to browse</div>
+            <div style="font-size:12.5px;color:var(--gray-mist-dim);">PNG or JPG</div>
+          </div>
+          <div class="image-preview" id="imagePreview" style="display:none;">
+            <img src="" alt="Uploaded issue photo">
+            <div class="image-preview-actions">
+              <button type="button" class="btn btn-ghost btn-sm remove-image" id="removeImageBtn">Remove</button>
+              <button type="button" class="btn btn-ghost btn-sm" id="changeImageBtn">Change</button>
+            </div>
+          </div>
+        </div>
+        <input type="file" id="fileInput" accept="image/*" class="hidden">
+
+        <button type="button" class="btn btn-primary" id="analyzeBtn" style="display:none; margin-top:18px;">Analyze with AI</button>
+
+        <div id="analyzeLoading" style="display:none; margin-top:18px;">
+          <div style="font-size:13.5px; margin-bottom:8px;">Analyzing image...</div>
+          <div class="progress-track"><div class="progress-fill" id="analyzeFill"></div></div>
+          <div class="mono" style="font-size:12px; margin-top:6px; color:var(--cyan-signal);" id="analyzePct">0%</div>
+        </div>
+
+        <div id="aiResultBox" style="display:none; margin-top:20px;">
+          <div class="eyebrow">Demo AI Result — frontend simulation only</div>
+          <div class="grid-2">
+            <div class="glass card" style="padding:16px;"><div style="font-size:12px;color:var(--gray-mist-dim);">DETECTED OBJECT</div><div style="font-weight:600;" id="resDetected">—</div></div>
+            <div class="glass card" style="padding:16px;"><div style="font-size:12px;color:var(--gray-mist-dim);">CONFIDENCE</div><div class="mono" style="font-weight:600;" id="resConfidence">—</div></div>
+            <div class="glass card" style="padding:16px;"><div style="font-size:12px;color:var(--gray-mist-dim);">SEVERITY</div><div style="font-weight:600;" id="resSeverity">—</div></div>
+            <div class="glass card" style="padding:16px;"><div style="font-size:12px;color:var(--gray-mist-dim);">PRIORITY</div><div style="font-weight:600;" id="resPriority">—</div></div>
+          </div>
+          <p style="font-size:12px; margin-top:10px;">The real YOLO model will be connected later — this result is generated locally for demonstration.</p>
+        </div>
+      </div>
+
+      <button type="submit" id="submitBtn" class="btn btn-primary btn-block">Submit Civic Report →</button>
+    </form>
+  </div>
+</section>
+
+<div class="submit-overlay" id="submitOverlay">
+  <div class="glass card text-center" style="max-width:400px;">
+    <span class="loader-ring" style="width:30px;height:30px;"></span>
+    <p style="margin-top:16px;">Submitting report...</p>
+  </div>
+</div>
+
+<div id="footer"></div>
+<script src="js/main.js"></script>
+<script src="js/reports.js"></script>
+<script src="js/report-form.js"></script>
+</body>
+</html>

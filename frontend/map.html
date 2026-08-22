@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>City Map — Civic AI Government Console</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/animations.css">
+<link rel="stylesheet" href="css/responsive.css">
+<link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+<canvas id="bg-particles"></canvas>
+<div class="admin-layout">
+  <aside class="admin-sidebar" id="adminSidebar" data-current="map.html"></aside>
+  <main class="admin-content">
+    <div class="admin-topbar">
+      <div>
+        <button class="hamburger" id="sidebarToggle"><span></span><span></span><span></span></button>
+        <h1>City Infrastructure Map</h1>
+        <p>Geographic view of reported issues, color-coded by priority.</p>
+      </div>
+      <div style="display:flex; gap:14px; font-size:13px; align-items:center;">
+        <span><span style="color:var(--red-critical);">●</span> High</span>
+        <span><span style="color:var(--amber-warn);">●</span> Medium</span>
+        <span><span style="color:var(--green-good);">●</span> Low</span>
+      </div>
+    </div>
+
+    <div class="map-shell" id="mapShell"></div>
+    <p style="font-size:12.5px; margin-top:16px;">This placeholder is structured for a drop-in swap with Leaflet, Mapbox, Google Maps, or OpenStreetMap once live coordinates are available.</p>
+  </main>
+</div>
+
+<script src="js/main.js"></script>
+<script src="js/reports.js"></script>
+<script src="js/admin.js"></script>
+<script src="js/map.js"></script>
+</body>
+</html>
