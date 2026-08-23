@@ -90,7 +90,7 @@ def assign_department(data):
 def calculate_priority(data):
     severity = data["severity"]
 
-    if severity >= 80:
+    if severity >= 75:
         return "High"
     elif severity >= 60:
         return "Medium"
@@ -108,25 +108,27 @@ def issue():
     cursor = db.cursor(dictionary=True)
 
     cursor.execute("""
-    SELECT
-        id,
-        report_id,
-        issue_name AS issue,
-        category,
-        description,
-        location,
-        severity,
-        priority,
-        status,
-        image,
-        department,
-        ai_detected,
-        confidence,
-        created_at AS date,
-        gov_response AS govResponse
-    FROM reports
-    ORDER BY created_at DESC
-""")
+        SELECT
+            id,
+            report_id,
+            issue_name AS issue,
+            category,
+            description,
+            location,
+            latitude,
+            longitude,
+            severity,
+            priority,
+            status,
+            image,
+            department,
+            ai_detected,
+            confidence,
+            created_at AS date,
+            gov_response AS govResponse
+        FROM reports
+        ORDER BY created_at DESC
+    """)
 
     reports = cursor.fetchall()
 
@@ -139,72 +141,102 @@ def issue():
 
 @app.route("/api/issues", methods=["POST"])
 def create_issue():
+
     data = request.get_json()
 
-    # Calculate AI-related values
+    # Calculate severity
     data["severity"] = calculate_severity(data)
+
+    # Calculate priority
     data["priority"] = calculate_priority(data)
+
+    # Assign department
     data["department"] = assign_department(data)
+
+    # Backend controls initial status
     data["status"] = "Pending"
 
     # Generate report ID
-    report_id = "CIVIC-" + str(len(issues) + 1)
-
-    # Combine location fields from frontend
-    location = f"{data.get('address', '')}, {data.get('area', '')}, {data.get('city', '')}"
-
     db = get_db_connection()
     cursor = db.cursor()
 
-    sql = """
-    INSERT INTO reports
-    (
-        report_id,
-        issue_name,
-        category,
-        description,
-        location,
-        severity,
-        priority,
-        status,
-        image,
-        department,
-        ai_detected,
-        confidence,
-        gov_response
+    cursor.execute("SELECT COUNT(*) FROM reports")
+    count = cursor.fetchone()[0]
+
+    report_id = "CIVIC-" + str(count + 1)
+
+    # Combine location fields
+    location = (
+        f"{data.get('address', '')}, "
+        f"{data.get('area', '')}, "
+        f"{data.get('city', '')}"
     )
-    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-"""
+
+    sql = """
+        INSERT INTO reports
+        (
+            report_id,
+            issue_name,
+            category,
+            description,
+            location,
+            latitude,
+            longitude,
+            severity,
+            priority,
+            status,
+            image,
+            department,
+            ai_detected,
+            confidence,
+            gov_response
+        )
+        VALUES
+        (
+            %s, %s, %s, %s, %s,
+            %s, %s,
+            %s, %s, %s, %s, %s, %s, %s, %s
+        )
+    """
 
     values = (
-    report_id,
-    data.get("issue"),
-    data.get("category"),
-    data.get("description"),
-    location,
-    str(data["severity"]),
-    data["priority"],
-    data["status"],
-    data.get("image"),
-    data.get("department"),
-    data.get("aiDetected"),
-    data.get("confidence"),
-    data.get("gov_response")
-)
+        report_id,
+        data.get("issue"),
+        data.get("category"),
+        data.get("description"),
+        location,
+
+        # 🗺️ Map coordinates
+        data.get("latitude"),
+        data.get("longitude"),
+
+        data["severity"],
+        data["priority"],
+        data["status"],
+        data.get("image"),
+        data.get("department"),
+        data.get("aiDetected"),
+        data.get("confidence"),
+        data.get("govResponse", "")
+    )
 
     cursor.execute(sql, values)
     db.commit()
 
-    # Get MySQL-generated ID
-    data["id"] = cursor.lastrowid
-    data["report_id"] = report_id
-    data["location"] = location
-    data["reports"] = 1
+    saved_id = cursor.lastrowid
 
     cursor.close()
     db.close()
 
-    return jsonify(data), 201
+    return jsonify({
+        "id": saved_id,
+        "report_id": report_id,
+        "issue": data.get("issue"),
+        "category": data.get("category"),
+        "latitude": data.get("latitude"),
+        "longitude": data.get("longitude"),
+        "status": data["status"]
+    }), 201
 
 @app.route("/api/issues/<int:issue_id>", methods=["PUT"])
 def update_issue(issue_id):

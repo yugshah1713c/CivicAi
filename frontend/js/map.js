@@ -1,60 +1,190 @@
 /* ============================================================
-   CIVIC AI — map.js (visual placeholder, ready for real map SDK)
+   CIVIC AI — map.js
+   Government Infrastructure Map
    ============================================================ */
 
-function renderCityMap(){
-  const shell = document.getElementById('mapShell');
-  if(!shell) return;
-  const reports = getReports().slice(0, 14);
+const API = {
+  issues: "http://127.0.0.1:5000/api/issues"
+};
 
-  // deterministic pseudo-random scatter based on id
-  function hashPos(id){
-    let h = 0;
-    for(let i=0;i<id.length;i++) h = (h*31 + id.charCodeAt(i)) % 10000;
-    const x = 8 + (h % 84);
-    const y = 10 + ((h * 7) % 78);
-    return { x, y };
+let cityMap = null;
+
+function createPriorityIcon(priority) {
+
+  let color;
+
+  if (priority === "High") {
+    color = "#ff5470";
+  } 
+  else if (priority === "Medium") {
+    color = "#ff9f45";
+  } 
+  else {
+    color = "#35d399";
   }
 
-  shell.innerHTML = `<div class="map-badge-note glass">🗺️ Map integration coming soon — Leaflet / Mapbox / Google Maps ready</div>`;
-  reports.forEach(r => {
-    const pos = hashPos(r.id);
-    const marker = document.createElement('div');
-    marker.className = `map-marker ${r.priority.toLowerCase()}`;
-    marker.style.left = pos.x + '%';
-    marker.style.top = pos.y + '%';
-    marker.title = r.issue;
-    marker.addEventListener('click', (e) => {
-      e.stopPropagation();
-      showMapPopup(shell, r, pos);
+  return L.divIcon({
+    className: "priority-marker",
+    html: `
+      <div style="
+        width: 18px;
+        height: 18px;
+        background: ${color};
+        border-radius: 50%;
+        border: 3px solid rgba(255,255,255,0.8);
+        box-shadow: 0 0 15px ${color};
+      "></div>
+    `,
+    iconSize: [18, 18],
+    iconAnchor: [9, 9]
+  });
+} 
+
+async function renderCityMap() {
+
+  const shell = document.getElementById('mapShell');
+
+  if (!shell) return;
+
+  /*
+   * Create Leaflet map
+   * Rajkot coordinates
+   */
+  cityMap = L.map('mapShell').setView(
+    [22.3039, 70.8022],
+    13
+  );
+
+  /*
+   * OpenStreetMap tiles
+   */
+  L.tileLayer(
+    'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap contributors'
+    }
+  ).addTo(cityMap);
+
+
+  /*
+   * Get reports from backend
+   */
+  try {
+
+    const response = await fetch(API.issues);
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch issues");
+    }
+
+    const data = await response.json();
+
+    const reports = data.issues || [];
+
+    console.log("Reports received:", reports);
+
+
+    /*
+     * Create marker for every report
+     */
+    reports.forEach(report => {
+
+      /*
+       * Skip reports that don't have coordinates
+       */
+      if (
+        report.latitude === null ||
+        report.longitude === null ||
+        report.latitude === undefined ||
+        report.longitude === undefined
+      ) {
+        return;
+      }
+
+
+      const latitude = Number(report.latitude);
+      const longitude = Number(report.longitude);
+
+
+      /*
+       * Create marker
+       */
+      const marker = L.marker([
+        latitude,
+        longitude
+      ],
+      {
+    icon: createPriorityIcon(report.priority)
+      }).addTo(cityMap);
+
+
+      /*
+       * Marker popup
+       */
+      marker.bindPopup(`
+        <div style="min-width:220px;">
+
+          <div style="font-size:11px;color:#666;">
+            ${report.report_id}
+          </div>
+
+          <h3 style="margin:5px 0;">
+            ${report.issue}
+          </h3>
+
+          <div style="font-size:13px;">
+            ${report.category}
+          </div>
+
+          <hr>
+
+          <div>
+            <b>Priority:</b>
+            ${report.priority}
+          </div>
+
+          <div>
+            <b>Severity:</b>
+            ${report.severity}
+          </div>
+
+          <div>
+            <b>Status:</b>
+            ${report.status}
+          </div>
+
+          <div>
+            <b>Department:</b>
+            ${report.department}
+          </div>
+
+          <div style="margin-top:8px;color:#666;">
+            ${report.location}
+          </div>
+
+        </div>
+      `);
+
     });
-    shell.appendChild(marker);
-  });
-  shell.addEventListener('click', () => {
-    const existing = shell.querySelector('.map-popup');
-    if(existing) existing.remove();
-  });
+
+  } catch (error) {
+
+    console.error(
+      "Map loading error:",
+      error
+    );
+
+  }
+
 }
 
-function showMapPopup(shell, r, pos){
-  const existing = shell.querySelector('.map-popup');
-  if(existing) existing.remove();
-  const popup = document.createElement('div');
-  popup.className = 'map-popup glass card';
-  popup.style.left = pos.x + '%';
-  popup.style.top = pos.y + '%';
-  popup.innerHTML = `
-    <div class="mono" style="font-size:11.5px;color:var(--gray-mist-dim);">${r.id}</div>
-    <div style="font-weight:600;margin:4px 0 8px;">${r.issue}</div>
-    <div style="font-size:12.5px;color:var(--gray-mist);margin-bottom:8px;">${CATEGORY_META[r.category]?.icon} ${r.category} · ${r.area}</div>
-    <span class="badge ${STATUS_CLASS[r.status]}">${STATUS_ICON[r.status]} ${r.status}</span>
-    <span class="mono ${priorityClass(r.priority)}" style="float:right;">${r.priority}</span>
-  `;
-  popup.addEventListener('click', (e) => e.stopPropagation());
-  shell.appendChild(popup);
-}
 
-document.addEventListener('DOMContentLoaded', () => {
-  seedReports();
-  renderCityMap();
-});
+document.addEventListener(
+  'DOMContentLoaded',
+  () => {
+
+    renderCityMap();
+
+  }
+);

@@ -285,14 +285,20 @@ button{ font-family: var(--font-body); cursor:pointer; }
 .image-preview img{ max-height:280px; border-radius: var(--radius-md); margin:0 auto 14px; object-fit:cover; }
 .image-preview-actions{ display:flex; gap:10px; justify-content:center; }
 
-/* ---------- Map placeholder note ---------- */
-.map-coming-soon{
-  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px;
-  height:220px; border-radius: var(--radius-lg); border:1px dashed var(--line-strong);
-  background:
-    linear-gradient(rgba(59,110,255,0.05) 1px, transparent 1px) 0 0/30px 30px,
-    linear-gradient(90deg, rgba(59,110,255,0.05) 1px, transparent 1px) 0 0/30px 30px;
-  color: var(--gray-mist-dim); font-size:13.5px; text-align:center;
+#citizenMap {
+  height: 300px;
+  width: 100%;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin-top: 18px;
+  border: 1px solid var(--line-strong);
+}
+
+.map-hint {
+  margin-top: 8px;
+  color: var(--gray-mist-dim);
+  font-size: 13px;
+  text-align: center;
 }
 
 /* ---------- Submit overlay ---------- */
