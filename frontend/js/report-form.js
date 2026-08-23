@@ -131,7 +131,6 @@ function initSubmit(){
 
     setTimeout(async () => {
     try {
-    const sev = aiResult?.severity || 'Medium';
       const report = {
         owner: localStorage.getItem('currentUser') || 'Demo',
         issue, description,
@@ -141,8 +140,6 @@ function initSubmit(){
         image: uploadedImage,
         aiDetected: aiResult?.detected || selectedCategory,
         confidence: aiResult?.confidence || 85,
-        severity: sev,
-        priority: aiResult?.priority || (sev === 'High' || sev === 'Critical' ? 'High' : 'Medium'),
         status: 'Submitted',
         department: CATEGORY_META[selectedCategory]?.dept || 'General Services',
         govResponse: ''
@@ -161,6 +158,7 @@ function initSubmit(){
 
     const savedReport = await response.json();
 
+      uploadedImage = null
     console.log("Saved by backend:", savedReport);
 
       overlay.innerHTML = `

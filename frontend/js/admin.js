@@ -2,11 +2,17 @@
    CIVIC AI — admin.js (Government Console)
    ============================================================ */
 
+  const ADMIN_API = {
+  issues: "http://127.0.0.1:5000/api/issues"
+};
+
 /* ---------- Dashboard ---------- */
-function renderAdminDashboard(){
+async function renderAdminDashboard(){
   const grid = document.getElementById('dashStats');
   if(!grid) return;
-  const reports = getReports();
+
+  const reports = await getBackendReports();
+
   const total = reports.length;
   const critical = reports.filter(r => r.severity === 'Critical').length;
   const high = reports.filter(r => r.priority === 'High').length;
@@ -47,11 +53,17 @@ function renderAdminDashboard(){
 }
 
 /* ---------- Priority Queue ---------- */
-function renderPriorityQueue(){
+async function renderPriorityQueue(){
   const wrap = document.getElementById('priorityQueue');
   if(!wrap) return;
+
   const order = { High:0, Medium:1, Low:2 };
-  const reports = [...getReports()].sort((a,b) => order[a.priority]-order[b.priority] || new Date(b.date)-new Date(a.date));
+
+  const reports = [...await getBackendReports()].sort(
+    (a,b) =>
+      order[a.priority]-order[b.priority] ||
+      new Date(b.date)-new Date(a.date)
+  );
 
   wrap.innerHTML = reports.map(r => `
     <div class="priority-row reveal in" onclick="location.href='admin-report-view.html?redirect=1'" style="cursor:pointer;" data-id="${r.id}">
@@ -82,7 +94,7 @@ function renderPriorityQueue(){
 /* ---------- All Reports (management table) ---------- */
 let adminEditingId = null;
 
-function renderAdminReportsTable(){
+async function renderAdminReportsTable(){
   const tbody = document.getElementById('adminReportsBody');
   if(!tbody) return;
 
@@ -91,13 +103,27 @@ function renderAdminReportsTable(){
   const statusFilter = document.getElementById('adminStatusFilter');
   const priorityFilter = document.getElementById('adminPriorityFilter');
 
-  function apply(){
-    let rows = [...getReports()].sort((a,b)=> new Date(b.date)-new Date(a.date));
+  async function apply(){
+    let rows = [...await getBackendReports()]
+      .sort((a,b) => new Date(b.date)-new Date(a.date));
+
     const q = (search?.value || '').toLowerCase();
-    if(q) rows = rows.filter(r => r.issue.toLowerCase().includes(q) || r.id.toLowerCase().includes(q));
-    if(catFilter?.value) rows = rows.filter(r => r.category === catFilter.value);
-    if(statusFilter?.value) rows = rows.filter(r => r.status === statusFilter.value);
-    if(priorityFilter?.value) rows = rows.filter(r => r.priority === priorityFilter.value);
+
+    if(q) {
+      rows = rows.filter(r =>
+        r.issue.toLowerCase().includes(q) ||
+        String(r.id).toLowerCase().includes(q)
+      );
+    }
+
+    if(catFilter?.value)
+      rows = rows.filter(r => r.category === catFilter.value);
+
+    if(statusFilter?.value)
+      rows = rows.filter(r => r.status === statusFilter.value);
+
+    if(priorityFilter?.value)
+      rows = rows.filter(r => r.priority === priorityFilter.value);
 
     tbody.innerHTML = rows.map(r => `
       <tr>
@@ -106,59 +132,187 @@ function renderAdminReportsTable(){
         <td data-label="Category">${CATEGORY_META[r.category]?.icon} ${r.category}</td>
         <td data-label="Severity">${r.severity}</td>
         <td data-label="Priority" class="mono ${priorityClass(r.priority)}">${r.priority}</td>
-        <td data-label="Status"><span class="badge ${STATUS_CLASS[r.status]}">${STATUS_ICON[r.status]} ${r.status}</span></td>
+        <td data-label="Status">
+          <span class="badge ${STATUS_CLASS[r.status]}">
+            ${STATUS_ICON[r.status]} ${r.status}
+          </span>
+        </td>
         <td data-label="Department">${r.department}</td>
-        <td data-label="Action"><button class="btn btn-ghost btn-sm" onclick="openAdminEdit('${r.id}')">Manage</button></td>
+        <td data-label="Action">
+          <button class="btn btn-ghost btn-sm"
+                  onclick="openAdminEdit('${r.id}')">
+            Manage
+          </button>
+        </td>
       </tr>
     `).join('');
   }
-  [search, catFilter, statusFilter, priorityFilter].forEach(el => el && el.addEventListener('input', apply));
-  apply();
+
+  [search, catFilter, statusFilter, priorityFilter]
+    .forEach(el => el && el.addEventListener('input', apply));
+
+  await apply();
 
   const urlParams = new URLSearchParams(window.location.search);
   const openId = urlParams.get('open');
+
   if(openId) openAdminEdit(openId);
 }
 
-function openAdminEdit(id){
+async function openAdminEdit(id) {
+
+  console.log("1. Manage clicked");
+  console.log("Report ID:", id);
+
   adminEditingId = id;
-  const report = getReports().find(r => r.id === id);
-  if(!report) return;
-  const modal = document.getElementById('adminEditModal');
-  document.getElementById('editReportId').textContent = report.id;
-  document.getElementById('editIssue').textContent = report.issue;
-  document.getElementById('editDesc').textContent = report.description;
-  document.getElementById('editSeverityFill').style.width = severityToPercent(report.severity) + '%';
-  document.getElementById('editSeverityFill').className = 'severity-fill ' + severityClass(report.severity);
-  document.getElementById('editSeverityLabel').textContent = report.severity.toUpperCase();
-  document.getElementById('editConfidence').textContent = report.confidence + '%';
-  document.getElementById('editStatusSelect').value = report.status;
-  document.getElementById('editPrioritySelect').value = report.priority;
-  document.getElementById('editDeptSelect').value = report.department;
-  document.getElementById('editResponse').value = report.govResponse || '';
-  modal.style.display = 'flex';
+
+  try {
+
+    console.log("2. Fetching reports from Flask...");
+
+    const reports = await getBackendReports();
+
+    console.log("3. Reports received:", reports);
+
+    const report = reports.find(
+      r => String(r.id) === String(id)
+    );
+
+    console.log("4. Selected report:", report);
+
+    if (!report) {
+      console.error("REPORT NOT FOUND");
+      console.log("Looking for ID:", id);
+      console.log("Available IDs:", reports.map(r => r.id));
+
+      showToast("Report not found", "warn");
+      return;
+    }
+
+    console.log("5. Filling modal...");
+
+    const modal = document.getElementById('adminEditModal');
+
+    if (!modal) {
+      console.error("adminEditModal NOT FOUND");
+      return;
+    }
+
+    document.getElementById('editReportId').textContent =
+      report.id;
+
+    document.getElementById('editIssue').textContent =
+      report.issue;
+
+    document.getElementById('editDesc').textContent =
+      report.description;
+
+    document.getElementById('editSeverityFill').style.width =
+      severityToPercent(report.severity) + '%';
+
+    document.getElementById('editSeverityFill').className =
+      'severity-fill ' + severityClass(report.severity);
+
+    document.getElementById('editSeverityLabel').textContent =
+      String(report.severity).toUpperCase();
+
+    document.getElementById('editConfidence').textContent =
+      report.confidence + '%';
+
+    if(report.image != null){
+      document.getElementById('editReportImage').src = 
+      report.image;
+    }else{
+      document.getElementById("image_holder").style="none"
+    }
+
+    document.getElementById('editStatusSelect').value =
+      report.status;
+
+    document.getElementById('editPrioritySelect').value =
+      report.priority;
+
+    document.getElementById('editDeptSelect').value =
+      report.department;
+
+    document.getElementById('editResponse').value =
+      report.govResponse || '';
+
+    console.log("6. Opening modal");
+
+    modal.style.display = 'flex';
+
+    console.log("7. SUCCESS");
+
+  } catch (error) {
+
+    console.error("OPEN ADMIN EDIT ERROR:", error);
+
+    showToast(
+      "Could not load report details",
+      "warn"
+    );
+  }
 }
 function closeAdminEdit(){
   document.getElementById('adminEditModal').style.display = 'none';
 }
-function saveAdminEdit(){
-  const reports = getReports();
-  const idx = reports.findIndex(r => r.id === adminEditingId);
-  if(idx === -1) return;
-  reports[idx].status = document.getElementById('editStatusSelect').value;
-  reports[idx].priority = document.getElementById('editPrioritySelect').value;
-  reports[idx].department = document.getElementById('editDeptSelect').value;
-  reports[idx].govResponse = document.getElementById('editResponse').value;
-  saveReports(reports);
-  closeAdminEdit();
-  showToast('Status updated', 'success');
-  renderAdminReportsTable();
-  renderPriorityQueue();
-  renderAdminDashboard();
+
+
+async function saveAdminEdit(){
+
+  const status = document.getElementById('editStatusSelect').value;
+  const priority = document.getElementById('editPrioritySelect').value;
+  const department = document.getElementById('editDeptSelect').value;
+  const govResponse = document.getElementById('editResponse').value;
+
+  try {
+
+    const response = await fetch(
+      `${ADMIN_API.issues}/${adminEditingId}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          status,
+          priority,
+          department,
+          govResponse
+        })
+      }
+    );
+
+    if(!response.ok){
+      throw new Error("Failed to update issue");
+    }
+
+    const updatedIssue = await response.json();
+
+    console.log("Updated by backend:", updatedIssue);
+
+    closeAdminEdit();
+
+    showToast('Issue updated successfully', 'success');
+
+    await renderAdminReportsTable();
+    await renderPriorityQueue();
+    await renderAdminDashboard();
+
+  } catch(error){
+
+    console.error("Update error:", error);
+
+    showToast(
+      'Failed to update issue. Make sure the backend is running.',
+      'warn'
+    );
+
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  seedReports();
   renderAdminDashboard();
   renderPriorityQueue();
   renderAdminReportsTable();

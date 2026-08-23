@@ -3,29 +3,62 @@
    Shared data layer: localStorage-backed "reports" table
    ============================================================ */
 
-
+const REPORTS_API = {
+  issues: "http://127.0.0.1:5000/api/issues"
+};
 
 const CATEGORY_META = {
   'Water Leakage':        { icon:'💧', dept:'Water Board' },
-  'Garbage':               { icon:'🗑️', dept:'Sanitation Dept.' },
-  'Broken Street Light':   { icon:'💡', dept:'Electrical Dept.' },
+  'Garbage':               { icon:'🗑️', dept:'Sanitation Dept' },
+  'Broken Street Light':   { icon:'💡', dept:'Electrical Dept' },
   'Road Damage':           { icon:'🛣️', dept:'Public Works' },
   'Drainage Problem':      { icon:'🚰', dept:'Drainage Authority' },
   'Other':                 { icon:'📌', dept:'General Services' },
 };
 
-const STATUS_ORDER = ['Submitted','Under Review','Assigned','In Progress','Resolved'];
+const STATUS_ORDER = [
+  'Submitted',
+  'Pending',
+  'Under Review',
+  'Assigned',
+  'In Progress',
+  'Resolved'
+];
 const STATUS_CLASS = {
-  'Submitted':'badge-submitted','Under Review':'badge-review','Assigned':'badge-assigned',
-  'In Progress':'badge-progress','Resolved':'badge-resolved','Rejected':'badge-rejected'
+  'Pending':'badge-submitted',
+  'Submitted':'badge-submitted',
+  'Under Review':'badge-review',
+  'Assigned':'badge-assigned',
+  'In Progress':'badge-progress',
+  'Resolved':'badge-resolved',
+  'Rejected':'badge-rejected'
 };
+
 const STATUS_ICON = {
-  'Submitted':'🟡','Under Review':'🔵','Assigned':'🟣','In Progress':'🟠','Resolved':'🟢','Rejected':'🔴'
+  'Pending':'🟡',
+  'Submitted':'🟡',
+  'Under Review':'🔵',
+  'Assigned':'🟣',
+  'In Progress':'🟠',
+  'Resolved':'🟢',
+  'Rejected':'🔴'
 };
 
 function getReports(){
   return JSON.parse(localStorage.getItem('reports') || '[]');
 }
+async function getBackendReports() {
+  const response = await fetch(REPORTS_API.issues);
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch reports");
+  }
+
+  const data = await response.json();
+
+  return data.issues;
+}
+
 function saveReports(reports){
   localStorage.setItem('reports', JSON.stringify(reports));
 }
@@ -88,14 +121,14 @@ function formatDate(iso){
 }
 
 /* ---------------- My Reports Page ---------------- */
-function renderMyReports(){
+async function renderMyReports(){
   const list = document.getElementById('reportsList');
   const emptyState = document.getElementById('emptyState');
   if(!list) return;
 
-  const user = localStorage.getItem('currentUser') || 'Demo';
-  let all = getReports().filter(r => r.owner === user);
-  all = all.sort((a,b) => new Date(b.date) - new Date(a.date));
+  let all = await getBackendReports();
+
+  all = all.sort((a, b) => new Date(b.date) - new Date(a.date));
 
   const search = document.getElementById('searchInput');
   const catFilter = document.getElementById('categoryFilter');
@@ -105,7 +138,12 @@ function renderMyReports(){
   function apply(){
     let rows = all;
     const q = (search?.value || '').toLowerCase();
-    if(q) rows = rows.filter(r => r.issue.toLowerCase().includes(q) || r.id.toLowerCase().includes(q));
+    if(q) {
+  rows = rows.filter(r =>
+    r.issue.toLowerCase().includes(q) ||
+    String(r.id).toLowerCase().includes(q)
+  );
+}
     if(catFilter?.value) rows = rows.filter(r => r.category === catFilter.value);
     if(statusFilter?.value) rows = rows.filter(r => r.status === statusFilter.value);
     if(priorityFilter?.value) rows = rows.filter(r => r.priority === priorityFilter.value);
@@ -141,63 +179,272 @@ function openReport(id){
 }
 
 /* ---------------- Report Details Page ---------------- */
-function renderReportDetails(){
+async function renderReportDetails(){
   const wrap = document.getElementById('reportDetailWrap');
   if(!wrap) return;
+
   const id = localStorage.getItem('selectedReportId');
-  const report = getReports().find(r => r.id === id);
-  if(!report){
-    wrap.innerHTML = `<div class="glass card text-center"><h3>No report selected</h3><p>Head back to My Reports to choose one.</p><a href="reports.html" class="btn btn-primary">My Reports</a></div>`;
+
+
+  if(!id){
+    wrap.innerHTML = `
+      <div class="glass card text-center">
+        <h3>No report selected</h3>
+        <p>Head back to My Reports to choose a report.</p>
+        <a href="reports.html" class="btn btn-primary">My Reports</a>
+      </div>
+    `;
     return;
   }
-  const statusIndex = STATUS_ORDER.indexOf(report.status);
 
-  wrap.innerHTML = `
-    <div class="grid-2" style="align-items:start;">
-      <div class="glass card reveal in">
-        <div class="eyebrow">${report.id}</div>
-        <h2>${report.issue}</h2>
-        <p>${report.description}</p>
-        <div class="divider"></div>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; font-size:14px;">
-          <div><div style="color:var(--gray-mist-dim);font-size:12px;">CATEGORY</div>${CATEGORY_META[report.category]?.icon} ${report.category}</div>
-          <div><div style="color:var(--gray-mist-dim);font-size:12px;">DATE FILED</div>${formatDate(report.date)}</div>
-          <div><div style="color:var(--gray-mist-dim);font-size:12px;">LOCATION</div>${report.address}, ${report.area}, ${report.city}</div>
-          <div><div style="color:var(--gray-mist-dim);font-size:12px;">DEPARTMENT</div>${report.department}</div>
-          <div><div style="color:var(--gray-mist-dim);font-size:12px;">STATUS</div><span class="badge ${STATUS_CLASS[report.status]}">${STATUS_ICON[report.status]} ${report.status}</span></div>
-          <div><div style="color:var(--gray-mist-dim);font-size:12px;">PRIORITY</div><span class="mono ${priorityClass(report.priority)}">${report.priority}</span></div>
-        </div>
-        ${report.image ? `<div class="divider"></div><img src="${report.image}" style="border-radius:14px; max-height:260px; object-fit:cover; width:100%;">` : ''}
-        <div class="divider"></div>
-        <div class="eyebrow" style="margin-bottom:8px;">AI Detection · Demo Result</div>
-        <div style="display:flex; gap:24px; flex-wrap:wrap; font-size:14px;">
-          <div>Detected: <b>${report.aiDetected}</b></div>
-          <div>Confidence: <b class="mono">${report.confidence}%</b></div>
-          <div>Severity: <b>${report.severity}</b></div>
-        </div>
-        ${report.govResponse ? `<div class="divider"></div><div class="eyebrow">Government Response</div><p>${report.govResponse}</p>` : ''}
-      </div>
+  try {
 
-      <div class="glass card reveal in">
-        <h3>Report Timeline</h3>
-        <div class="timeline">
-          ${STATUS_ORDER.map((s, i) => `
-            <div class="timeline-item ${i < statusIndex ? 'done' : i === statusIndex ? 'active' : ''}">
-              <div class="timeline-dot">${i < statusIndex ? '✓' : i === statusIndex ? '●' : '○'}</div>
-              <div>
-                <div class="timeline-label">${s === 'Submitted' ? 'Report Submitted' : s === 'Under Review' ? 'Government Review' : s}</div>
-                ${i===0 ? '<div class="timeline-sub">AI analysis complete on submission</div>' : ''}
+    // Get reports from Flask backend
+    const allReports = await getBackendReports();
+
+    // Find the selected report
+    const report = allReports.find(r => String(r.id) === String(id));
+
+    if(!report){
+      wrap.innerHTML = `
+        <div class="glass card text-center">
+          <h3>Report not found</h3>
+          <p>This report could not be found in the backend.</p>
+          <a href="reports.html" class="btn btn-primary">My Reports</a>
+        </div>
+      `;
+      return;
+    }
+
+    const statusIndex = STATUS_ORDER.indexOf(report.status);
+
+    wrap.innerHTML = `
+      <div class="grid-2" style="align-items:start;">
+
+        <div class="glass card reveal in">
+
+          <div class="eyebrow">${report.id}</div>
+
+          <h2>${report.issue}</h2>
+
+          <p>${report.description}</p>
+
+          <div class="divider"></div>
+
+          <div style="
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:16px;
+            font-size:14px;
+          ">
+
+            <div>
+              <div style="color:var(--gray-mist-dim);font-size:12px;">
+                CATEGORY
               </div>
+
+              ${CATEGORY_META[report.category]?.icon || '📌'}
+              ${report.category}
             </div>
-          `).join('')}
+
+
+            <div>
+              <div style="color:var(--gray-mist-dim);font-size:12px;">
+                DATE FILED
+              </div>
+
+              ${formatDate(report.date)}
+            </div>
+
+
+            <div>
+              <div style="color:var(--gray-mist-dim);font-size:12px;">
+                LOCATION
+              </div>
+
+             ${report.location || 'Location not provided'}
+            </div>
+
+
+            <div>
+              <div style="color:var(--gray-mist-dim);font-size:12px;">
+                DEPARTMENT
+              </div>
+
+              ${report.department}
+            </div>
+
+
+            <div>
+              <div style="color:var(--gray-mist-dim);font-size:12px;">
+                STATUS
+              </div>
+
+              <span class="badge ${STATUS_CLASS[report.status] || 'badge-submitted'}">
+                ${STATUS_ICON[report.status] || '🟡'}
+                ${report.status}
+              </span>
+            </div>
+
+
+            <div>
+              <div style="color:var(--gray-mist-dim);font-size:12px;">
+                PRIORITY
+              </div>
+
+              <span class="mono ${priorityClass(report.priority)}">
+                ${report.priority}
+              </span>
+            </div>
+
+          </div>
+
+
+          ${
+            report.image
+            ?
+            `
+            <div class="divider"></div>
+
+            <img
+              src="${report.image}"
+              style="
+                border-radius:14px;
+                max-height:260px;
+                object-fit:cover;
+                width:100%;
+              "
+            >
+            `
+            :
+            ''
+          }
+
+
+          <div class="divider"></div>
+
+          <div class="eyebrow" style="margin-bottom:8px;">
+            AI Detection
+          </div>
+
+          <div style="
+            display:flex;
+            gap:24px;
+            flex-wrap:wrap;
+            font-size:14px;
+          ">
+
+            <div>
+              Detected:
+              <b>${report.ai_detected}</b>
+            </div>
+
+            <div>
+              Confidence:
+              <b class="mono">${report.confidence}%</b>
+            </div>
+
+            <div>
+              Severity:
+              <b>${report.severity}</b>
+            </div>
+
+          </div>
+
+
+          ${
+            report.govResponse
+            ?
+            `
+            <div class="divider"></div>
+
+            <div class="eyebrow">
+              Government Response
+            </div>
+
+            <p>${report.govResponse}</p>
+            `
+            :
+            ''
+          }
+
         </div>
+
+
+        <div class="glass card reveal in">
+
+          <h3>Report Timeline</h3>
+
+          <div class="timeline">
+
+            ${STATUS_ORDER.map((s, i) => `
+
+              <div class="timeline-item ${
+                i < statusIndex
+                  ? 'done'
+                  : i === statusIndex
+                    ? 'active'
+                    : ''
+              }">
+
+                <div class="timeline-dot">
+                  ${
+                    i < statusIndex
+                      ? '✓'
+                      : i === statusIndex
+                        ? '●'
+                        : '○'
+                  }
+                </div>
+
+                <div>
+
+                  <div class="timeline-label">
+                    ${
+                      s === 'Submitted'
+                        ? 'Report Submitted'
+                        : s === 'Under Review'
+                          ? 'Government Review'
+                          : s
+                    }
+                  </div>
+
+                  ${
+                    i === 0
+                      ? '<div class="timeline-sub">AI analysis complete on submission</div>'
+                      : ''
+                  }
+
+                </div>
+
+              </div>
+
+            `).join('')}
+
+          </div>
+
+        </div>
+
       </div>
-    </div>
-  `;
+    `;
+
+  } catch(error) {
+
+    console.error("Failed to load report details:", error);
+
+    wrap.innerHTML = `
+      <div class="glass card text-center">
+        <h3>Unable to load report</h3>
+        <p>Please make sure the Flask backend is running.</p>
+        <a href="reports.html" class="btn btn-primary">
+          My Reports
+        </a>
+      </div>
+    `;
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  seedReports();
   renderMyReports();
   renderReportDetails();
 });
