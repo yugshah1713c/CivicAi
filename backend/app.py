@@ -20,14 +20,18 @@ CORS(app, resources={
 # DATABASE CONNECTION — AIVEN MYSQL
 # ============================================================
 
-def get_db_connection():
+from dotenv import load_dotenv
+import os
 
+load_dotenv()
+
+def get_db_connection():
     return mysql.connector.connect(
-        host="mysql-80fc27d-shahyug1122-e2e3.d.aivencloud.com",
-        port=26542,
-        user="avnadmin",
-        password="REMOVED",
-        database="defaultdb",
+        host=os.getenv("DB_HOST"),
+        port=int(os.getenv("DB_PORT", 3306)),
+        user=os.getenv("DB_USER"),
+        password=os.getenv("DB_PASSWORD"),
+        database=os.getenv("DB_NAME"),
         ssl_disabled=False
     )
 
