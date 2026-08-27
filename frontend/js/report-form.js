@@ -4,7 +4,7 @@
    ============================================================ */
 
 const API = {
-  issues: "http://127.0.0.1:5000/api/issues"
+  issues: "https://civic-ai-backend-7wv2.onrender.com/api/issues"
 };
 
 let selectedCategory = null;
