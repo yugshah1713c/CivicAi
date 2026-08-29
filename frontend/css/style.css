@@ -189,6 +189,12 @@ button{ font-family: var(--font-body); cursor:pointer; }
   outline:none; border-color: var(--cyan-signal);
   box-shadow: 0 0 0 3px rgba(79,224,232,0.15);
 }
+/* ---------ADDITIONAL CHNGES---------- */
+.field select option,
+.filters-bar select option{
+  color:#444;
+  background:#fff;
+}
 .field textarea{ resize:vertical; min-height:110px; }
 
 /* ---------- Badges ---------- */
