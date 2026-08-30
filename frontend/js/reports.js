@@ -336,7 +336,7 @@ async function renderReportDetails(){
 
             <div>
               Detected:
-              <b>${report.ai_detected}</b>
+              <b>${report.aiDetected}</b>
             </div>
 
             <div>

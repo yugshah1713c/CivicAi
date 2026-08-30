@@ -2,6 +2,9 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import mysql.connector
+from ultralytics import YOLO
+import base64
+import uuid
 
 app = Flask(__name__)
 
@@ -21,6 +24,11 @@ CORS(app, resources={
 # ============================================================
 
 from dotenv import load_dotenv
+MODEL_PATH = r"D:\civicAi\runs\detect\train-3\weights\best.pt"
+
+model = YOLO(MODEL_PATH)
+
+print("YOLO MODEL LOADED")
 import os
 
 load_dotenv()
@@ -270,7 +278,130 @@ def assign_department(category):
         "General Services"
     )
 
+   # ============================================================
+# YOLO IMAGE DETECTION
+# ============================================================
 
+def detect_issue(image_path):
+
+    try:
+
+        results = model.predict(
+            source=image_path,
+            conf=0.25,
+            verbose=False
+        )
+
+        result = results[0]
+
+        if result.boxes is None or len(result.boxes) == 0:
+
+            return {
+                "detected": None,
+                "confidence": 0
+            }
+
+        best_index = result.boxes.conf.argmax()
+
+        class_id = int(
+            result.boxes.cls[best_index]
+        )
+
+        confidence = float(
+            result.boxes.conf[best_index]
+        )
+
+        detected_class = model.names[class_id]
+
+        return {
+            "detected": detected_class,
+            "confidence": round(
+                confidence * 100,
+                2
+            )
+        }
+
+    except Exception as e:
+
+        print("YOLO ERROR:", e)
+
+        return {
+            "detected": None,
+            "confidence": 0
+        }
+
+def save_base64_image(image_data):
+
+    try:
+
+        if not image_data:
+            return None
+
+        # Remove data URL prefix
+        if "," in image_data:
+            image_data = image_data.split(",", 1)[1]
+
+        image_bytes = base64.b64decode(image_data)
+
+        os.makedirs("uploads", exist_ok=True)
+
+        filename = f"{uuid.uuid4().hex}.jpg"
+
+        image_path = os.path.join(
+            "uploads",
+            filename
+        )
+
+        with open(image_path, "wb") as f:
+            f.write(image_bytes)
+
+        return image_path
+
+    except Exception as e:
+
+        print("IMAGE SAVE ERROR:", e)
+
+        return None
+
+
+# ============================================================
+# AI TEST ENDPOINT
+# ============================================================
+
+@app.route("/api/ai-test", methods=["POST"])
+def ai_test():
+
+    image = request.files.get("image")
+
+    if not image:
+
+        return jsonify({
+            "success": False,
+            "error": "No image uploaded"
+        }), 400
+
+    filename = image.filename
+
+    image_path = os.path.join(
+        "uploads",
+        filename
+    )
+
+    image.save(image_path)
+
+    detection = detect_issue(
+        image_path
+    )
+
+    return jsonify({
+
+        "success": True,
+
+        "filename": filename,
+
+        "detection": detection
+
+    }) 
 # ============================================================
 # GET ALL REPORTS
 # ============================================================
@@ -661,22 +792,34 @@ def create_issue():
         )
 
 
-        image = data.get(
-            "image"
-        )
+        image = data.get("image")
+
+        ai_detected = category
+        confidence = 0
 
 
-        ai_detected = (
-            data.get("aiDetected")
-            or data.get("ai_detected")
-            or category
-        )
+        # ====================================================
+        # YOLO AI DETECTION
+        # ====================================================
 
+        image_path = save_base64_image(image)
 
-        confidence = data.get(
-            "confidence",
-            85
-        )
+        if image_path:
+
+            detection = detect_issue(
+              image_path
+            )
+
+        if detection["detected"]:
+
+            ai_detected = detection["detected"]
+            confidence = detection["confidence"]
+
+            print(
+            "AI DETECTION:",
+            ai_detected,
+            confidence
+         )
 
 
         gov_response = (

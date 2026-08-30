@@ -4,11 +4,13 @@
    ============================================================ */
 
 const API = {
-  issues: "https://civic-ai-backend-7wv2.onrender.com/api/issues"
+  issues: "https://civic-ai-backend-7wv2.onrender.com/api/issues",
+  aiTest: "http://127.0.0.1:5000/api/ai-test"
 };
 
 let selectedCategory = null;
 let uploadedImage = null;
+let uploadedFile = null;
 let aiResult = null;
 
 /*
@@ -207,6 +209,7 @@ function initImageUpload() {
     ) {
       return;
     }
+    uploadedFile = file;
 
 
     const reader =
@@ -412,40 +415,54 @@ function initImageUpload() {
    AI ANALYSIS
    ============================================================ */
 
+/* ============================================================
+   AI ANALYSIS — REAL YOLO
+   ============================================================ */
+
 function initAnalyze() {
 
   const btn =
-    document.getElementById(
-      'analyzeBtn'
-    );
+    document.getElementById('analyzeBtn');
 
   if (!btn) return;
 
 
   btn.addEventListener(
     'click',
-    () => {
+    async () => {
 
       const loadingBox =
-        document.getElementById(
-          'analyzeLoading'
-        );
+        document.getElementById('analyzeLoading');
 
       const resultBox =
-        document.getElementById(
-          'aiResultBox'
-        );
+        document.getElementById('aiResultBox');
 
       const fill =
-        document.getElementById(
-          'analyzeFill'
-        );
+        document.getElementById('analyzeFill');
 
       const pct =
-        document.getElementById(
-          'analyzePct'
+        document.getElementById('analyzePct');
+
+
+      /* --------------------------------
+         Check image
+         -------------------------------- */
+
+      if (!uploadedFile) {
+
+        showToast(
+          'Please upload an image first',
+          'warn'
         );
 
+        return;
+
+      }
+
+
+      /* --------------------------------
+         Show loading
+         -------------------------------- */
 
       resultBox.style.display =
         'none';
@@ -455,151 +472,314 @@ function initAnalyze() {
 
       btn.disabled = true;
 
+      fill.style.width = '20%';
+      pct.textContent = '20%';
 
-      /*
-       * Temporary frontend AI simulation
-       */
 
-      const detections = [
+      try {
 
-        {
-          obj: 'Garbage',
-          sev: 'High'
-        },
+        /* --------------------------------
+           Create FormData
+           -------------------------------- */
 
-        {
-          obj: 'Pothole',
-          sev: 'Critical'
-        },
+        const formData =
+          new FormData();
 
-        {
-          obj: 'Water Leak',
-          sev: 'Medium'
-        },
+        formData.append(
+          'image',
+          uploadedFile
+        );
 
-        {
-          obj: 'Broken Light Pole',
-          sev: 'Medium'
+
+        fill.style.width = '40%';
+        pct.textContent = '40%';
+
+
+        /* --------------------------------
+           Send image to YOLO backend
+           -------------------------------- */
+
+        const response =
+          await fetch(
+            API.aiTest,
+            {
+              method: 'POST',
+              body: formData
+            }
+          );
+
+
+        fill.style.width = '70%';
+        pct.textContent = '70%';
+
+
+        if (!response.ok) {
+
+          throw new Error(
+            `AI server returned ${response.status}`
+          );
+
         }
 
-      ];
+
+        const data =
+          await response.json();
 
 
-      const pick =
-        detections[
-          Math.floor(
-            Math.random() *
-            detections.length
-          )
-        ];
+        console.log(
+          'REAL YOLO RESULT:',
+          data
+        );
 
 
-      const confidence =
-        Math.floor(
-          Math.random() * 10
-        ) + 88;
+        /* --------------------------------
+           Check response
+           -------------------------------- */
+
+        if (
+          !data.success ||
+          !data.detection
+        ) {
+
+          throw new Error(
+            data.error ||
+            'No AI detection result'
+          );
+
+        }
 
 
-      const priority =
-        pick.sev === 'Critical' ||
-        pick.sev === 'High'
-          ? 'High'
-          : 'Medium';
+        const detected =
+          data.detection.detected;
+
+        const confidence =
+          data.detection.confidence;
 
 
-      let progress = 0;
+        /* --------------------------------
+           No detection
+           -------------------------------- */
+
+        if (!detected) {
+
+          aiResult = {
+
+            detected:
+              'No issue detected',
+
+            confidence: 0,
+
+            severity:
+              'Low',
+
+            priority:
+              'Low'
+
+          };
+
+        }
+
+        else {
+
+          /* --------------------------------
+             YOLO → Civic AI names
+             -------------------------------- */
+
+          const displayNames = {
+
+            'POTHOLES':
+              'Pothole',
+
+            'GARBAGE':
+              'Garbage',
+
+            'GRAFFITI':
+              'Graffiti',
+
+            'BAD_STREETLIGHT':
+              'Bad Streetlight',
+
+            'BROKEN_SIGNAGE':
+              'Broken Signage',
+
+            'FADED_SIGNAGE':
+              'Faded Signage',
+
+            'BAD_BILLBOARD':
+              'Bad Billboard',
+
+            'CLUTTER_SIDEWALK':
+              'Cluttered Sidewalk',
+
+            'CONSTRUCTION_ROAD':
+              'Construction Road',
+
+            'SAND_ON_ROAD':
+              'Sand on Road',
+
+            'UNKEPT_FACADE':
+              'Unkept Facade'
+
+          };
 
 
-      const interval =
-        setInterval(
+          const displayName =
+            displayNames[detected]
+            || detected;
+
+
+          /* --------------------------------
+             Severity
+             -------------------------------- */
+
+          let severity =
+            'Low';
+
+
+          if (
+            detected === 'POTHOLES' ||
+            detected === 'CONSTRUCTION_ROAD'
+          ) {
+
+            severity =
+              'High';
+
+          }
+
+          else if (
+            detected === 'GARBAGE' ||
+            detected === 'CLUTTER_SIDEWALK' ||
+            detected === 'SAND_ON_ROAD'
+          ) {
+
+            severity =
+              'Medium';
+
+          }
+
+
+          /* --------------------------------
+             Priority
+             -------------------------------- */
+
+          const priority =
+            severity === 'High'
+              ? 'High'
+              : severity === 'Medium'
+                ? 'Medium'
+                : 'Low';
+
+
+          /* --------------------------------
+             Save AI result
+             -------------------------------- */
+
+          aiResult = {
+
+            detected:
+              displayName,
+
+            confidence:
+              confidence,
+
+            severity:
+              severity,
+
+            priority:
+              priority
+
+          };
+
+        }
+
+
+        /* --------------------------------
+           Finish loading
+           -------------------------------- */
+
+        fill.style.width =
+          '100%';
+
+        pct.textContent =
+          '100%';
+
+
+        setTimeout(
           () => {
 
-            progress +=
-              Math.random() * 18 + 8;
+            loadingBox.style.display =
+              'none';
+
+            resultBox.style.display =
+              'block';
 
 
-            if (progress >= 100) {
+            /* --------------------------------
+               Display detected issue
+               -------------------------------- */
 
-              progress = 100;
-
-              clearInterval(
-                interval
-              );
-
-
-              setTimeout(
-                () => {
-
-                  loadingBox.style.display =
-                    'none';
-
-                  resultBox.style.display =
-                    'block';
+            document.getElementById(
+              'resDetected'
+            ).textContent =
+              aiResult.detected;
 
 
-                  document.getElementById(
-                    'resDetected'
-                  ).textContent =
-                    pick.obj;
+            document.getElementById(
+              'resConfidence'
+            ).textContent =
+              aiResult.confidence + '%';
 
 
-                  document.getElementById(
-                    'resConfidence'
-                  ).textContent =
-                    confidence + '%';
+            document.getElementById(
+              'resSeverity'
+            ).textContent =
+              aiResult.severity;
 
 
-                  document.getElementById(
-                    'resSeverity'
-                  ).textContent =
-                    pick.sev;
+            document.getElementById(
+              'resPriority'
+            ).textContent =
+              aiResult.priority;
 
 
-                  document.getElementById(
-                    'resPriority'
-                  ).textContent =
-                    priority;
+            btn.disabled =
+              false;
 
+            btn.textContent =
+              'Re-analyze with AI';
 
-                  aiResult = {
-
-                    detected:
-                      pick.obj,
-
-                    confidence:
-                      confidence,
-
-                    severity:
-                      pick.sev,
-
-                    priority:
-                      priority
-
-                  };
-
-
-                  btn.disabled =
-                    false;
-
-                  btn.textContent =
-                    'Re-analyze with AI';
-
-                },
-                300
-              );
-
-            }
-
-
-            fill.style.width =
-              progress + '%';
-
-            pct.textContent =
-              Math.floor(progress) + '%';
 
           },
-          220
+          400
         );
+
+
+      }
+
+      catch (error) {
+
+        console.error(
+          'REAL YOLO AI ERROR:',
+          error
+        );
+
+
+        loadingBox.style.display =
+          'none';
+
+        btn.disabled =
+          false;
+
+        btn.textContent =
+          'Analyze with AI';
+
+
+        showToast(
+          'AI analysis failed. Check the backend.',
+          'warn'
+        );
+
+      }
 
     }
   );
