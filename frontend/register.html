@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Register — Civic AI</title>
+
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/animations.css">
+<link rel="stylesheet" href="css/responsive.css">
+</head>
+
+<body>
+
+<canvas id="bg-particles"></canvas>
+
+<div id="navbar" data-mode="bare"></div>
+
+<section class="section" style="min-height:82vh; display:flex; align-items:center;">
+
+  <div class="container" style="max-width:440px;">
+
+    <div class="glass card reveal in" style="padding:40px 36px;">
+
+      <div class="eyebrow">Citizen Access</div>
+
+      <h2 style="font-size:28px;">Create Your Account</h2>
+
+      <p style="margin-bottom:24px;">
+        Join Civic AI and help make your city better.
+      </p>
+
+
+      <form id="registerForm">
+
+        <!-- Name -->
+        <div class="field">
+
+          <label for="name">Full Name</label>
+
+          <input
+            type="text"
+            id="name"
+            placeholder="Enter your full name"
+            autocomplete="name"
+            required
+          >
+
+        </div>
+
+
+        <!-- Email -->
+        <div class="field">
+
+          <label for="email">Email</label>
+
+          <input
+            type="email"
+            id="email"
+            placeholder="Enter your email"
+            autocomplete="email"
+            required
+          >
+
+        </div>
+
+
+        <!-- Password -->
+        <div class="field">
+
+          <label for="password">Password</label>
+
+          <input
+            type="password"
+            id="password"
+            placeholder="Create a password"
+            autocomplete="new-password"
+            required
+          >
+
+        </div>
+
+
+        <!-- Confirm Password -->
+        <div class="field">
+
+          <label for="confirmPassword">Confirm Password</label>
+
+          <input
+            type="password"
+            id="confirmPassword"
+            placeholder="Confirm your password"
+            autocomplete="new-password"
+            required
+          >
+
+        </div>
+
+
+        <!-- Role -->
+        <div class="field">
+
+          <label for="role">Account Type</label>
+
+          <select id="role" required>
+
+            <option value="citizen">Citizen</option>
+            <option value="government">Government</option>
+
+          </select>
+
+        </div>
+
+
+        <button
+          type="submit"
+          id="registerBtn"
+          class="btn btn-primary btn-block"
+        >
+          Create Account
+        </button>
+
+      </form>
+
+
+      <div class="divider"></div>
+
+
+      <a
+        href="login.html"
+        class="btn btn-ghost btn-block"
+      >
+        Already have an account? Login
+      </a>
+
+
+      <a
+        href="admin-login.html"
+        class="btn btn-ghost btn-block"
+        style="margin-top:12px;"
+      >
+        Government Access
+      </a>
+
+
+      <p
+        style="
+          text-align:center;
+          margin-top:20px;
+          font-size:12.5px;
+        "
+      >
+        Create your Civic AI account and start reporting
+        problems in your city.
+      </p>
+
+    </div>
+
+  </div>
+
+</section>
+
+<div id="footer"></div>
+
+<script src="js/main.js"></script>
+<script src="js/register.js"></script>
+
+</body>
+</html>
