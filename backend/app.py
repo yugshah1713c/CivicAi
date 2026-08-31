@@ -386,8 +386,12 @@ def ai_test():
 
     filename = image.filename
 
+    upload_dir = "uploads"
+
+    os.makedirs(upload_dir, exist_ok=True)
+
     image_path = os.path.join(
-        "uploads",
+        upload_dir,
         filename
     )
 
