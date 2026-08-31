@@ -5,6 +5,7 @@ import mysql.connector
 from ultralytics import YOLO
 import base64
 import uuid
+import os
 
 app = Flask(__name__)
 
@@ -24,12 +25,15 @@ CORS(app, resources={
 # ============================================================
 
 from dotenv import load_dotenv
-MODEL_PATH = r"D:\civicAi\runs\detect\train-3\weights\best.pt"
+MODEL_PATH = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+    "ai",
+    "best.pt"
+)
 
 model = YOLO(MODEL_PATH)
 
 print("YOLO MODEL LOADED")
-import os
 
 load_dotenv()
 
