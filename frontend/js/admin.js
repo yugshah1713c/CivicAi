@@ -219,6 +219,15 @@ async function openAdminEdit(id) {
     document.getElementById('editConfidence').textContent =
       report.confidence + '%';
 
+
+    const aiDetectedElement =
+       document.getElementById('editAIDetected');
+
+    if (aiDetectedElement) {
+       aiDetectedElement.textContent =
+      report.aiDetected || 'Not detected';
+    }
+
     if(report.image != null){
       document.getElementById('editReportImage').src = 
       report.image;
