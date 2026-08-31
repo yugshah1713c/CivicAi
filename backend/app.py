@@ -1,7 +1,7 @@
 
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import pymysql
+import mysql.connector
 
 app = Flask(__name__)
 
@@ -26,13 +26,13 @@ import os
 load_dotenv()
 
 def get_db_connection():
-   return pymysql.connect(
+    return mysql.connector.connect(
         host=os.getenv("DB_HOST"),
         port=int(os.getenv("DB_PORT", 3306)),
         user=os.getenv("DB_USER"),
         password=os.getenv("DB_PASSWORD"),
         database=os.getenv("DB_NAME"),
-        connect_timeout=10
+        ssl_disabled=False
     )
 
 
