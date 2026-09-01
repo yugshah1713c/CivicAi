@@ -605,6 +605,9 @@ def get_issues():
     methods=["POST"]
 )
 def create_issue():
+    start_time = time.time()
+
+    print("CREATE REPORT START")
 
     data = request.get_json(
         silent=True
@@ -852,8 +855,15 @@ def create_issue():
         # ====================================================
         # CONNECT DATABASE
         # ====================================================
-
+        print(
+        "TIME BEFORE DB CONNECTION:",
+        time.time() - start_time
+        )
         db = get_db_connection()
+        print(
+        "DB CONNECTION TIME:",
+        time.time() - start_time
+        )
 
         cursor = db.cursor()
 
@@ -867,6 +877,10 @@ def create_issue():
             SELECT COUNT(*)
             FROM reports
             """
+        )
+        print(
+        "AFTER INSERT:",
+        time.time() - start_time
         )
 
 
@@ -976,6 +990,10 @@ def create_issue():
 
 
         db.commit()
+        print(
+        "AFTER COMMIT:",
+        time.time() - start_time
+        )
 
 
         saved_id = (
@@ -1098,6 +1116,10 @@ def create_issue():
                 str(e)
 
         }), 500
+        print(
+        "TOTAL CREATE REPORT TIME:",
+        time.time() - start_time
+        )
 
 
     finally:
