@@ -1046,7 +1046,7 @@ function initSubmit() {
             /* --------------------------------
                Send to Flask
                -------------------------------- */
-
+            console.time("SUBMIT_REQUEST");
             const response =
               await fetch(
                 API.issues,
@@ -1066,6 +1066,7 @@ function initSubmit() {
 
                 }
               );
+              console.timeEnd("SUBMIT_REQUEST");
 
 
             if (!response.ok) {
