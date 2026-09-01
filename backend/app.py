@@ -293,6 +293,7 @@ def detect_issue(image_path):
         results = model.predict(
             source=image_path,
             conf=0.25,
+            imgsz=640,
             verbose=False
         )
 
