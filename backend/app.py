@@ -820,32 +820,27 @@ def create_issue():
         # YOLO AI DETECTION
         # ====================================================
 
-        image_path = save_base64_image(image)
+        # ====================================================
+# AI RESULT FROM FRONTEND
+# ====================================================
 
         print("IMAGE RECEIVED:", bool(image))
-        print("IMAGE SAVED PATH:", image_path)
 
-        detection = {
-            "detected": None,
-            "confidence": 0
-        }
+        ai_detected = (
+            data.get("aiDetected")
+            or category
+        )
 
-        if image_path:
-            print("RUNNING YOLO...")
-            detection = detect_issue(image_path)
-            print("YOLO RESULT:", detection)
+        confidence = data.get(      
+            "confidence",
+            0
+        )
 
-        if detection["detected"]:
-            ai_detected = detection["detected"]
-            confidence = detection["confidence"]
-
-            print(
-                "AI DETECTION:",
-                ai_detected,
-                confidence
-            )
-        else:
-            print("NO AI DETECTION")        
+        print(
+            "AI RESULT RECEIVED:",
+            ai_detected,
+            confidence
+        )          
 
 
         gov_response = (
