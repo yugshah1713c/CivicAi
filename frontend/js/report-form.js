@@ -971,6 +971,10 @@ function initSubmit() {
                   'currentUser'
                 ) || 'Demo',
 
+              user_email:
+                localStorage.getItem(
+                  'currentUserEmail'
+                ) || '',
 
               issue,
 

@@ -1,19 +1,17 @@
 /* ============================================================
    CIVIC AI — register.js
-   Frontend-only registration
+   Real backend registration
    ============================================================ */
 
-function initRegistration(){
+function initRegistration() {
 
   const form = document.getElementById('registerForm');
 
-  if(!form) return;
+  if (!form) return;
 
-
-  form.addEventListener('submit', (e) => {
+  form.addEventListener('submit', async (e) => {
 
     e.preventDefault();
-
 
     const name =
       document.getElementById('name').value.trim();
@@ -34,29 +32,33 @@ function initRegistration(){
       document.getElementById('registerBtn');
 
 
-    /* Basic validation */
+    /* ========================================================
+       FRONTEND VALIDATION
+       ======================================================== */
 
-    if(!name || !email || !password || !confirmPassword){
+    if (!name || !email || !password || !confirmPassword) {
 
-      showToast('Please fill in all fields', 'error');
-
-      return;
-    }
-
-
-    /* Password confirmation */
-
-    if(password !== confirmPassword){
-
-      showToast('Passwords do not match', 'error');
+      showToast(
+        'Please fill in all fields',
+        'error'
+      );
 
       return;
     }
 
 
-    /* Password length */
+    if (password !== confirmPassword) {
 
-    if(password.length < 6){
+      showToast(
+        'Passwords do not match',
+        'error'
+      );
+
+      return;
+    }
+
+
+    if (password.length < 6) {
 
       showToast(
         'Password must be at least 6 characters',
@@ -67,65 +69,118 @@ function initRegistration(){
     }
 
 
-    /* Loading state */
+    /* ========================================================
+       DISABLE BUTTON
+       ======================================================== */
 
     btn.innerHTML =
-      `<span class="loader-ring"></span> Creating account...`;
+      '<span class="loader-ring"></span> Creating Account...';
 
     btn.disabled = true;
 
 
-    /*
-      Demo registration.
+    /* ========================================================
+       SEND TO BACKEND
+       ======================================================== */
 
-      Currently stored in localStorage because
-      this version is frontend-only.
-    */
+    try {
 
-    setTimeout(() => {
+      const response = await fetch(
+        'http://127.0.0.1:5000/api/register',
+        {
+          method: 'POST',
 
-      const user = {
+          headers: {
+            'Content-Type': 'application/json'
+          },
 
-        name: name,
-
-        email: email,
-
-        role: role
-
-      };
-
-
-      localStorage.setItem(
-        'registeredUser',
-        JSON.stringify(user)
+          body: JSON.stringify({
+            name: name,
+            email: email,
+            password: password,
+            role: role
+          })
+        }
       );
 
 
-      localStorage.setItem(
-        'currentUser',
-        name
-      );
+      const result =
+        await response.json();
 
+
+      /* ======================================================
+         SUCCESS
+         ====================================================== */
+
+      if (result.success) {
+
+        showToast(
+          'Account created successfully!',
+          'success'
+        );
+
+        setTimeout(() => {
+
+          window.location.href =
+            'login.html';
+
+        }, 900);
+
+      }
+
+
+      /* ======================================================
+         ERROR
+         ====================================================== */
+
+      else {
+
+        showToast(
+          result.error || 'Registration failed',
+          'error'
+        );
+
+        btn.innerHTML =
+          'Create Account';
+
+        btn.disabled = false;
+
+      }
+
+    }
+
+
+    /* ========================================================
+       SERVER CONNECTION ERROR
+       ======================================================== */
+
+    catch (error) {
+
+      console.error(
+        'REGISTRATION ERROR:',
+        error
+      );
 
       showToast(
-        'Account created successfully!',
-        'success'
+        'Unable to connect to server',
+        'error'
       );
 
+      btn.innerHTML =
+        'Create Account';
 
-      setTimeout(() => {
+      btn.disabled = false;
 
-        window.location.href = 'login.html';
-
-      }, 900);
-
-
-    }, 900);
+    }
 
   });
 
 }
 
+
+/* ============================================================
+   INITIALIZE
+   ============================================================ */
 
 document.addEventListener(
   'DOMContentLoaded',
@@ -135,3 +190,4 @@ document.addEventListener(
 
   }
 );
+

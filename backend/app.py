@@ -1,4 +1,3 @@
-
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import mysql.connector
@@ -7,6 +6,7 @@ import base64
 import uuid
 import os
 import time
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 
@@ -1439,6 +1439,189 @@ def update_issue(
 
             db.close()
 
+# ============================================================
+# REGISTER USER
+# ============================================================
+
+@app.route("/api/register", methods=["POST"])
+def register_user():
+
+    data = request.get_json(silent=True)
+
+    if not data:
+        return jsonify({
+            "success": False,
+            "error": "No JSON data received"
+        }), 400
+
+    name = (data.get("name") or "").strip()
+    email = (data.get("email") or "").strip()
+    password = data.get("password") or ""
+    role = (data.get("role") or "citizen").strip()
+
+    # Validate required fields
+    if not name or not email or not password:
+        return jsonify({
+            "success": False,
+            "error": "Name, email and password are required"
+        }), 400
+
+    # Only allow valid roles
+    if role not in ["citizen", "gov_person"]:
+        role = "citizen"
+
+    db = None
+    cursor = None
+
+    try:
+
+        db = get_db_connection()
+        cursor = db.cursor()
+
+        # Check whether email already exists
+        cursor.execute(
+            "SELECT id FROM user WHERE email = %s",
+            (email,)
+        )
+
+        existing_user = cursor.fetchone()
+
+        if existing_user:
+            return jsonify({
+                "success": False,
+                "error": "Email already registered"
+            }), 409
+
+        # Hash password before storing it
+        hashed_password = generate_password_hash(password)
+
+        # Create user
+        cursor.execute(
+            """
+            INSERT INTO user
+            (name, email, password, role)
+            VALUES (%s, %s, %s, %s)
+            """,
+            (name, email, hashed_password, role)
+        )
+
+        db.commit()
+
+        return jsonify({
+            "success": True,
+            "message": "Account created successfully"
+        }), 201
+
+    except Exception as e:
+
+        if db:
+            db.rollback()
+
+        print("REGISTER ERROR:", e)
+
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+
+    finally:
+
+        if cursor:
+            cursor.close()
+
+        if db:
+            db.close()
+
+# ============================================================
+# LOGIN USER
+# ============================================================
+
+@app.route("/api/login", methods=["POST"])
+def login_user():
+
+    data = request.get_json(silent=True)
+
+    if not data:
+        return jsonify({
+            "success": False,
+            "error": "No JSON data received"
+        }), 400
+
+    email = (data.get("email") or "").strip()
+    password = data.get("password") or ""
+
+    if not email or not password:
+        return jsonify({
+            "success": False,
+            "error": "Email and password are required"
+        }), 400
+
+    db = None
+    cursor = None
+
+    try:
+
+        db = get_db_connection()
+        cursor = db.cursor()
+
+        cursor.execute(
+            """
+            SELECT id, name, email, password, role
+            FROM user
+            WHERE email = %s
+            """,
+            (email,)
+        )
+
+        user = cursor.fetchone()
+
+        if not user:
+            return jsonify({
+                "success": False,
+                "error": "Invalid email or password"
+            }), 401
+
+        stored_password = user[3]
+
+        if not check_password_hash(
+            stored_password,
+            password
+        ):
+            return jsonify({
+                "success": False,
+                "error": "Invalid email or password"
+            }), 401
+
+        return jsonify({
+            "success": True,
+            "message": "Login successful",
+            "user": {
+                "id": user[0],
+                "name": user[1],
+                "email": user[2],
+                "role": user[4]
+            }
+        }), 200
+
+    except Exception as e:
+
+        if db:
+            db.rollback()
+
+        print("LOGIN ERROR:", e)
+
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+
+    finally:
+
+        if cursor:
+            cursor.close()
+
+        if db:
+            db.close()
 
 # ============================================================
 # RUN SERVER

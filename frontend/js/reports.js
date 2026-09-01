@@ -47,8 +47,10 @@ const STATUS_ICON = {
 function getReports(){
   return JSON.parse(localStorage.getItem('reports') || '[]');
 }
-async function getBackendReports() {
-  const response = await fetch(REPORTS_API.issues);
+async function getBackendReports(email) {
+  const response = await fetch(
+    `${REPORTS_API.issues}?email=${encodeURIComponent(email)}`
+  );
 
   if (!response.ok) {
     throw new Error("Failed to fetch reports");
@@ -122,11 +124,23 @@ function formatDate(iso){
 
 /* ---------------- My Reports Page ---------------- */
 async function renderMyReports(){
+
+  // 🔐 Citizen must be logged in
+  requireCitizen();
+
   const list = document.getElementById('reportsList');
   const emptyState = document.getElementById('emptyState');
+
   if(!list) return;
 
-  let all = await getBackendReports();
+  const email = localStorage.getItem('currentUserEmail');
+
+  if (!email) {
+    window.location.href = 'login.html';
+    return;
+  }
+
+  let all = await getBackendReports(email);
 
   all = all.sort((a, b) => new Date(b.date) - new Date(a.date));
 
@@ -200,7 +214,14 @@ async function renderReportDetails(){
   try {
 
     // Get reports from Flask backend
-    const allReports = await getBackendReports();
+    const email = localStorage.getItem('currentUserEmail');
+
+  if (!email) {
+  window.location.href = 'login.html';
+  return;
+  }
+
+  const allReports = await getBackendReports(email);
 
     // Find the selected report
     const report = allReports.find(r => String(r.id) === String(id));
