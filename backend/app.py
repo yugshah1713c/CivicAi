@@ -6,6 +6,7 @@ from ultralytics import YOLO
 import base64
 import uuid
 import os
+import time
 
 app = Flask(__name__)
 
@@ -289,6 +290,9 @@ def assign_department(category):
 def detect_issue(image_path):
 
     try:
+        start = time.time()
+
+
 
         results = model.predict(
             source=image_path,
