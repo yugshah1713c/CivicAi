@@ -5,7 +5,7 @@
 
 const API = {
   issues: "https://civic-ai-backend-7wv2.onrender.com/api/issues",
-  aiTest: "http://127.0.0.1:5000/api/ai-test"
+  aiTest: "https://civic-ai-backend-7wv2.onrender.com/api/ai-test"
 };
 
 let selectedCategory = null;
